@@ -13,6 +13,7 @@ var gutil = require('gulp-util');
 var glob = require('glob');
 var debug = require('gulp-debug');
 var del = require('del');
+var runSequence = require('run-sequence');
 
 var path = require('path');
 var join = path.join;
@@ -20,19 +21,36 @@ var join = path.join;
 var config = {
     baseFolder: '',
     sourceFolder: 'src/',
+    assetsFolder: 'assets/',
     buildFolder: 'build/',
     bundleName: 'app.js',
     index: 'index.html'
 };
 
 gulp.task('clean', function(cb) {
-    del([config.buildFolder], cb);
+    del([
+        join(config.buildFolder, 'assets/**'),
+        join(config.buildFolder, '**')
+    ], cb);
 });
 
-gulp.task('copy', function(){
+function addOne(value) {
+    return value + 1;
+}
+
+gulp.task('copyindex', function(){
     return gulp.src(join(config.sourceFolder, config.index))
             .pipe(gulp.dest(config.buildFolder));
-})
+});
+
+gulp.task('copyassets', function(){
+    return gulp.src(join(config.assetsFolder, '**/*'))
+        .pipe(gulp.dest(join(config.buildFolder, 'assets'), { overwrite: true }))
+});
+
+gulp.task('copy', function(cb) {
+    return runSequence('copyindex', 'copyassets', cb);
+});
 
 gulp.task('browserify', function () {
     var b = browserify({
@@ -53,7 +71,9 @@ gulp.task('browserify', function () {
         .pipe(gulp.dest(config.buildFolder));
 });
 
-gulp.task('build', ['clean', 'browserify', 'copy']);
+gulp.task('build', function(cb) {
+    return runSequence('clean', 'copy', 'browserify', cb);
+});
 
 
 

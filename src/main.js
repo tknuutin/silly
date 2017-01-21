@@ -1,25 +1,20 @@
 
 import * as Test from './test'
+import $ from './jqueryp';
 import * as Bacon from 'baconjs';
-
-function textFieldValue(textField) {
-    function value() {
-        return textField.value;
-    }
-    return Bacon.fromEvent(textField, "keyup").map(value).toProperty('');
-}
+import * as Network from './network';
+import * as BJQ from 'bacon.jquery';
 
 function start() {
     Test.doStuff();
 
-    setTimeout(() => {
-        console.log('timeout', Bacon);
-    }, 500);
-
-    const command = textFieldValue(document.getElementById('command'))
+    const commandInput = $('#command');
+    const command = BJQ.textFieldValue(commandInput)
         .filter((value) => value.length > 2);
 
     command.log();
+
+    const startDataResponse = Network.getStartData();
 }
 
 window.onload = start;

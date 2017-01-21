@@ -28,6 +28,11 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "ramda": "^0.23.0"
+    "bacon.jquery": "^0.4.12",
+    "bacon.model": "^0.1.12",
+    "baconjs": "^0.7.89",
+    "jquery": "^3.1.1",
+    "ramda": "^0.23.0",
+    "run-sequence": "^1.2.2"
   }
 }
