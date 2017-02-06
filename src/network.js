@@ -6,13 +6,13 @@ import * as Bacon from 'baconjs';
 const START_COMMANDS = [
     {
         cmd: 'look at room',
-        outcome: {
+        outcomes: {
             desc: "You look out of your window. It's a grey, boring autumn day in the street below.",
         }
     },
     {
         cmd: 'open door',
-        outcome: {
+        outcomes: {
             desc: "You open the door. The smell from the kitchen hits you in the face.",
             globalVars: [
                 {
@@ -24,14 +24,14 @@ const START_COMMANDS = [
     },
     {
         cmd: 'go to kitchen',
-        conditions: [
+        available: [
             {
                 globalVars: {
                     exists: 'has_opened_bedroom_door'
                 }
             }
         ],
-        outcome: {
+        outcomes: {
             desc: '',
             move: 'Kitchen'
         }
@@ -40,7 +40,7 @@ const START_COMMANDS = [
 
 const START = {
     game: {
-        initializing: true,
+        initialized: false,
     },
     player: {
         name: '',
@@ -48,12 +48,12 @@ const START = {
         items: [],
         vars: [],
         stats: {
-            brawn: 5,    // strength
-            gait: 5,     // speed
-            allure: 5,   // charisma
-            mind: 5,     // intelligence
-            grit: 5,     // stamina
-            luck: 5      // yep
+            brawn: 10,    // strength
+            gait: 10,     // speed
+            allure: 10,   // charisma
+            mind: 10,     // intelligence
+            grit: 10,     // stamina
+            luck: 10      // yep
         }
     },
     area: {
@@ -73,7 +73,7 @@ function mockRequest(value) {
 }
 
 export function getStartData() {
-    return mockRequest(value);
+    return mockRequest(START);
 }
 
 
