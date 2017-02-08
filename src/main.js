@@ -45,7 +45,11 @@ function startGame(initialState, view) {
         R.forEach(view.print, state.output);
     });
 
-    const areaCommands = stateS.map(areaCmds).toProperty()
+    const gameInitialized = stateP.map((state) => state.game.initialized);
+
+    const areaCommands = stateS.map(areaCmds)
+        .filter(gameInitialized).toProperty();
+    
     const validInputP = view.validInput.toProperty();
     const matchingCommands = areaCommands
         .sampledBy(validInputP, getMatchingCommands);
