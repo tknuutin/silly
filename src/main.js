@@ -4,40 +4,52 @@ import $ from './jqueryp';
 import * as BJQ from 'bacon.jquery';
 import { createView } from './view';
 import * as R from 'ramda';
-import * as Network from './network'
+import { getById, getStartData } from './network'
 
-function getGameState(state) {
-    return R.clone(state);
-}
+const START_Q = [
+    "You feel dizzy, like you've just woken up from a heavy nap. You can't quite remember your name.",
+    "What is your name?"
+]
 
-function getPlayerState(state) {
-    return R.clone(state);
-}
-
-function getCurrentArea(area) {
-    return area;
-}
-
-function getAreasData(state) {
-    return R.clone(state);
-}
-
-function handleCommand(state, input = '') {
+function handleCommand(oldState, input = '') {
     const id = Math.random();
-    const newState = {
-        game: getGameState(state.game),
-        player: getPlayerState(state.player),
-        currentArea: getCurrentArea(state.currentArea),
-        areas: getAreasData(state.areas),
-        output: ['> ' + input],
+
+    const output = [];
+    const state = {
+        game: R.clone(oldState.game),
+        player: R.clone(oldState.player),
+        currentArea: R.clone(oldState.currentArea),
+        areas: R.clone(oldState.areas),
+        output: output,
         id: Math.random(),
         lastInput: input,
-        cmds: state.cmds + 1
+        cmds: oldState.cmds + 1
     };
+
+    if (input) {
+        output.push('> ' + input);
+    }
+
+    if (oldState.cmds === 0) {
+        R.forEach((l) => output.push(l), START_Q);
+    } else if (!state.game.initialized || state.cmds === 1) {
+        state.player.name = input;
+        state.game.initialized = true;
+        output.push(`You name is ${state.player.name}.`);
+    }
+
+    if (state.game.initialized) {
+        const { currentArea, areas } = state;
+        const area = getById(currentArea);
+        if (!areas[currentArea]) {
+            output.push(area.firstDesc);
+            areas[currentArea] = {};
+        }
+    }
 
     return new Promise((res) => {
         setTimeout(() => {
-            res(newState);
+            res(state);
         }, 200);
     });
 }
@@ -68,7 +80,7 @@ function getMatchingCommands(cmds, inputCmd) {
     return R.map(R.prop('cmd'), filtered);
 }
 
-const areaCmds = (state) => Network.getById(state.currentArea).commands;
+const areaCmds = (state) => getById(state.currentArea).commands;
 
 function startGame(initialState, view) {
     const input = view.commands;
@@ -79,7 +91,7 @@ function startGame(initialState, view) {
     const stateP = stateS.toProperty();
 
     stateP.onValue((state) => {
-        // console.log('value', JSON.stringify(state));
+        R.forEach(view.print, state.output);
     });
 
     const areaCommands = stateS.map(areaCmds).toProperty()
@@ -95,7 +107,7 @@ function startGame(initialState, view) {
 
 
 function start() {
-    Network.getStartData().onValue((data) => {
+    getStartData().onValue((data) => {
         startGame(data, createView());
     });
 }
