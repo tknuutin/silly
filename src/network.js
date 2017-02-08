@@ -3,7 +3,7 @@ import * as Bacon from 'baconjs';
 
 // This is all mocked because we don't have a server yet
 
-const START_COMMANDS = [
+const BEDROOM_COMMANDS = [
     {
         cmd: 'look at room',
         outcomes: {
@@ -38,7 +38,10 @@ const START_COMMANDS = [
     },
 ];
 
-const START = {
+const STARTSTATE = {
+    id: 0,
+    lastInput: '',
+    cmds: 0,
     game: {
         initialized: false,
     },
@@ -56,11 +59,17 @@ const START = {
             luck: 10      // yep
         }
     },
-    area: {
+    currentArea: 'core:bedroom',
+    areas: {},
+    output: ['Starting game!']
+}
+
+const AREAS = {
+    'core:bedroom': {
         name: 'Bedroom',
         desc: "It's your bedroom.",
         firstDesc: 'You are in your bedroom. There is a window, a bed, and a door. What do you do?',
-        commands: START_COMMANDS
+        commands: BEDROOM_COMMANDS  
     }
 }
 
@@ -72,8 +81,17 @@ function mockRequest(value) {
     });
 }
 
+export function getById(id) {
+    // Mocking this like this for now, i dont currrr
+    const area = AREAS[id];
+    if (area) {
+        return area;
+    }
+    throw new Error('uh oh');
+}
+
 export function getStartData() {
-    return mockRequest(START);
+    return mockRequest(STARTSTATE);
 }
 
 

@@ -24,7 +24,7 @@ export function createView() {
 
     const input = BJQ.textFieldValue(commandInput);
 
-    const valid = (text) => text.length > 2; 
+    const valid = (text) => text && text[0].match(/[A-Za-z]/); 
     const inputIsValid = input.map(valid).toProperty();
     const inputIsInvalid = inputIsValid.not();
     const validInput = input.filter(inputIsValid);
@@ -49,7 +49,6 @@ export function createView() {
             suggDiv.empty();
             if (suggestions && suggestions.length > 0) {
                 R.forEach((text) => {
-                    console.log('adding!', text);
                     addTextParagraph(text, suggDiv);
                 }, suggestions);
             }
