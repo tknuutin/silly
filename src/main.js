@@ -5,59 +5,12 @@ import * as BJQ from 'bacon.jquery';
 import { createView } from './view';
 import * as R from 'ramda';
 import { getById, getStartData } from './network'
-
-const START_Q = [
-    "You feel dizzy, like you've just woken up from a heavy nap. You can't quite remember your name.",
-    "What is your name?"
-]
-
-function handleCommand(oldState, input = '') {
-    const id = Math.random();
-
-    const output = [];
-    const state = {
-        game: R.clone(oldState.game),
-        player: R.clone(oldState.player),
-        currentArea: R.clone(oldState.currentArea),
-        areas: R.clone(oldState.areas),
-        output: output,
-        id: Math.random(),
-        lastInput: input,
-        cmds: oldState.cmds + 1
-    };
-
-    if (input) {
-        output.push('> ' + input);
-    }
-
-    if (oldState.cmds === 0) {
-        R.forEach((l) => output.push(l), START_Q);
-    } else if (!state.game.initialized || state.cmds === 1) {
-        state.player.name = input;
-        state.game.initialized = true;
-        output.push(`You name is ${state.player.name}.`);
-    }
-
-    if (state.game.initialized) {
-        const { currentArea, areas } = state;
-        const area = getById(currentArea);
-        if (!areas[currentArea]) {
-            output.push(area.firstDesc);
-            areas[currentArea] = {};
-        }
-    }
-
-    return new Promise((res) => {
-        setTimeout(() => {
-            res(state);
-        }, 200);
-    });
-}
+import { handleCommand } from './game'
 
 const updateState = (initialState) => {
+    // Sort of a mutable state hack
     let currentState = initialState;
     return (cmd) => {
-        console.log('in update state', cmd);
         return Bacon.fromPromise(
             handleCommand(currentState, cmd).then(newState => {
                 currentState = newState;
@@ -73,11 +26,9 @@ function getMatchingCommands(cmds, inputCmd) {
     }
 
     const testCmd = inputCmd.length === 2 ? inputCmd + ' ' : inputCmd;
-    const filtered = R.filter(({ cmd }) => {
-        return cmd.indexOf(testCmd) === 0;
-    }, cmds);
+    const matching = R.filter(({ cmd }) => cmd.indexOf(testCmd) === 0);
 
-    return R.map(R.prop('cmd'), filtered);
+    return R.map(R.prop('cmd'), matching(cmds));
 }
 
 const areaCmds = (state) => getById(state.currentArea).commands;
