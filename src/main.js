@@ -44,6 +44,7 @@ function startGame(initialState, world, view) {
 
     stateP.onValue((state) => {
         R.forEach(view.print, state.output);
+        view.onCommand();
     });
 
     const gameInitialized = stateP.map((state) => state.game.initialized);

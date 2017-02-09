@@ -64,8 +64,13 @@ export function createView() {
         }
     }
 
+    const onCommand = () => {
+        screen.scrollTop(screen[0].scrollHeight);
+    }
+
     return {
         print, showSuggestions,
+        onCommand,
         invalidInput: input,
         validInput: validInput,
         commands: validCommands,
