@@ -18,11 +18,19 @@ function addTextParagraph(text, el) {
     el.append(p);
 }
 
-export function createView() {
-    const commandInput = $('#command');
+function initInput(commandInput) {
+    commandInput.blurE().onValue(() => {
+        commandInput.focus();
+    });
+
     commandInput.keypressE().onValue((evt) => submitOnEnter(evt, commandInput));
 
     const input = BJQ.textFieldValue(commandInput);
+    const fakeInputText = $('#fakeinputtext');
+    input.onValue((val) => {
+        console.log('value yo');
+        fakeInputText.text(val);
+    });
 
     const valid = (text) => text && text[0].match(/[A-Za-z]/); 
     const inputIsValid = input.map(valid).toProperty();
@@ -35,24 +43,31 @@ export function createView() {
         .filter(inputIsValid);
 
     validCommands.onValue(() => commandInput.val(''));
+    return { input, validInput, validCommands };
+}
+
+export function createView() {
+    const commandInput = $('#command');
+    const { input, validInput, validCommands } = initInput(commandInput);
+    commandInput.focus();
 
     const screen = $('#screen');
     const suggDiv = $('#suggestions');
 
+    const print = (text) => addTextParagraph(text, screen);
+    const showSuggestions = (suggestions) => {
+        suggDiv.empty();
+        if (suggestions && suggestions.length > 0) {
+            R.forEach((text) => {
+                addTextParagraph(text, suggDiv);
+            }, suggestions);
+        }
+    }
+
     return {
-        print: (text) => addTextParagraph(text, screen),
+        print, showSuggestions,
         invalidInput: input,
         validInput: validInput,
         commands: validCommands,
-        showSuggestions: (suggestions) => {
-            // debugger;
-            suggDiv.empty();
-            if (suggestions && suggestions.length > 0) {
-                R.forEach((text) => {
-                    addTextParagraph(text, suggDiv);
-                }, suggestions);
-            }
-            
-        }
     }
 }

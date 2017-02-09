@@ -35,6 +35,7 @@ function replaceWithRules(str, state, world, rules) {
             if (found === 0) {
                 found = 1;
             } else if (found === 1) {
+                // Uhh this feels a bit odd
                 final += str.slice(Math.max(lastReplaceEnd, 0), i - 1);
                 lastReplaceStart = i;
                 found = 0;
@@ -80,7 +81,7 @@ const rules = {
     },
     special: {
         currentArea: (state, world) => {
-            return world.areas[state.currentArea];
+            return world.areas[state.currentArea].name;
         }
     }
 }

@@ -10,15 +10,15 @@ const START_Q = [
 
 const NAME_INSULTS = [
     "Really? I guess that's what we're working with.",
-    "Okay, let's go with that for now.",
-    "That can't be correct.",
+    "Uhh, let's come back to that later.",
+    "That can't be correct, but let's go with that for now.",
     "A rather stupid name, but that's the one you chose. No point berating yourself about it a second after you come up with it.",
     "You feel a powerful affinity with this newly chosen name.",
     "That sure is your name, as God is my witness."
 ];
 
 
-
+const randomChoice = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const areaByName = (world) => (id) => world.areas[id];
 
 export function handleCommand(oldState, world, input = '') {
@@ -26,7 +26,7 @@ export function handleCommand(oldState, world, input = '') {
     const getArea = areaByName(world);
 
     const output = [];
-
+ 
     const state = {
         game: R.clone(oldState.game),
         player: R.clone(oldState.player),
@@ -49,8 +49,8 @@ export function handleCommand(oldState, world, input = '') {
     } else if (!state.game.initialized || state.cmds === 1) {
         state.player.name = input;
         state.game.initialized = true;
-        const insult = NAME_INSULTS[Math.floor(Math.random() * NAME_INSULTS.length)];
-        pushText(`You name is ${state.player.name}. ${insult}`);
+        const insult = randomChoice(NAME_INSULTS);
+        pushText(`Your name is ${state.player.name}. ${insult}`);
     }
 
     if (state.game.initialized) {

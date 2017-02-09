@@ -1,10 +1,63 @@
 
 body {
     background-color: black;
+    color: #21c121;
+    
 }
 
-p, input {
-   color: green;
+body, input {
+    font-family: 'Jura', sans-serif;
+    font-size: 16pt;
+}
+
+input {
+    background: transparent;
+    outline: none;
+    border:0px;
+}
+
+input:focus {
+    outline: none;
+}
+
+#command {
+    width: 0px;
+    height: 0px;
+}
+
+#fakeinput {
+    display: block;
+    min-width: 100px;
+}
+
+#fakeinput span, #carecont {
+    display:inline-block;
+}
+
+#caret {
+    width: 9px;
+    height: 20px;
+    background-color: #21c121;
+    position: relative;
+    top: 0px;
+    left: 2px;
+    margin: 0px;
+    padding: 0px;
+}
+
+#caretcont {
+    display: inline-block;
+    position: absolute;
+    width: 0px;
+    height: 0px;
+}
+
+#cmd {
+    position: absolute;
+}
+
+#cmdcontainer {
+    height: 30px;
 }
 
 #container {
@@ -40,15 +93,8 @@ p, input {
     border: 1px solid #005701;
 }
 
-#container input {
-    background: transparent;
-    outline: none;
-    border:0px;
-    font-size:1.1em;
-}
-
-#container input:focus {
-    outline: none;
+#suggestions {
+    color: #1a691a;
 }
 
 #screen {
@@ -57,8 +103,24 @@ p, input {
     overflow:auto;
 }
 
-#p {
+p {
     -webkit-margin-before:0.5em;
     -webkit-margin-after:0.5em;
 }
+
+@keyframes blink {
+  50% {
+    opacity: 0.0;
+  }
+}
+@-webkit-keyframes blink {
+  50% {
+    opacity: 0.0;
+  }
+}
+.blink {
+  animation: blink 1s step-start 0s infinite;
+  -webkit-animation: blink 1s step-start 0s infinite;
+}
+
 

@@ -2,17 +2,21 @@
 <html>
 <head>
     <title>Test</title>
-    <script type="text/javascript" src="app.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Jura" rel="stylesheet">
     <link href="assets/game.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="app.js"></script>
 </head>
 <body>
     <div id='container'>
-    	<div id='screen'></div>
-    	<input id='command' type='text' placeholder='Give command'></input>
+        <div id='screen'></div>
+        <div id='fakeinput'>
+            <span>> </span><span id='fakeinputtext'></span>
+            <div id="caretcont">
+                <div id='caret' class="blink"></div>    
+            </div>
+        </div>
     </div>
-    <div id='suggcont'>
-    	<p>Suggestions:</p>
-    	<div id='suggestions'></div>
-    </div>
+    <input id='command' type='text'></input>
+    <div id='suggestions'></div>
 </body>
 </html>
