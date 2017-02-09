@@ -28,7 +28,6 @@ function initInput(commandInput) {
     const input = BJQ.textFieldValue(commandInput);
     const fakeInputText = $('#fakeinputtext');
     input.onValue((val) => {
-        console.log('value yo');
         fakeInputText.text(val);
     });
 
