@@ -81,17 +81,8 @@ function mockRequest(value) {
     });
 }
 
-export function getById(id) {
-    // Mocking this like this for now, i dont currrr
-    const area = AREAS[id];
-    if (area) {
-        return area;
-    }
-    throw new Error('uh oh');
-}
-
 export function getStartData() {
-    return mockRequest(STARTSTATE);
+    return mockRequest({ state: STARTSTATE, world: { areas: AREAS }});
 }
 
 
