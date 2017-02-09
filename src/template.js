@@ -1,22 +1,22 @@
 
 import * as R from 'ramda';
 
-function getValueFromState(pathStr, state, world, rules) {
+function getValueFromState(pathStr, state, rules) {
     const path = pathStr.split('.');
 
     if (R.path(path, rules.objectAccess)) {
-        return R.path(path, state);
+        return Promise.resolve(R.path(path, state));
     }
 
-    const special = rules[path[0]];
+    const special = rules.special[path[0]];
     if (special) {
-        return special(state, world);
+        return special(state);
     }
 
     throw new Error('Invalid template path: ' + pathStr);
 }
 
-function replaceWithRules(str, state, world, rules) {
+function replaceWithRules(str, state, rules) {
     const open = '{';
     const close = '}';
 
@@ -29,15 +29,19 @@ function replaceWithRules(str, state, world, rules) {
     let lastReplaceEnd = 0;
     let lastReplaceStart = 0;
 
-    while (i < len) {
+    const step = () => {
+        // console.log('stepping..', i);
         const symbol = str[i];
+        const index = i;
+        i++;
+
         if (!replacing && symbol === open) {
             if (found === 0) {
                 found = 1;
             } else if (found === 1) {
                 // Uhh this feels a bit odd
-                final += str.slice(Math.max(lastReplaceEnd, 0), i - 1);
-                lastReplaceStart = i;
+                final += str.slice(Math.max(lastReplaceEnd, 0), index - 1);
+                lastReplaceStart = index;
                 found = 0;
                 replacing = true;
             } else {
@@ -47,19 +51,40 @@ function replaceWithRules(str, state, world, rules) {
             if (found === 0) {
                 found = 1;
             } else if (found === 1) {
-                const valuePath = str.slice(lastReplaceStart + 1, i - 1);
-                final += getValueFromState(valuePath, state, world, rules);
-                found = 0;
-                lastReplaceEnd = i + 1;
-                replacing = false;
+                const valuePath = str.slice(lastReplaceStart + 1, index - 1);
+                return getValueFromState(valuePath, state, rules)
+                    .then((value) => {
+                        final += value;
+                        found = 0;
+                        lastReplaceEnd = index + 1;
+                        replacing = false;
+                    });
             }
         }
-
-        i++;
+        return Promise.resolve();
     };
-    final += str.slice(lastReplaceEnd, len);
 
-    return final;
+    const checkCondition = () => {
+        if (i > 142) {
+            debugger;
+        }
+        if (i > len) {
+            final += str.slice(lastReplaceEnd, len);
+            return Promise.resolve();
+        }
+        return iterate();
+    }
+
+    // well this shit is stupid
+    const iterate = () => {
+        console.log('iterating..', i);
+        return step().then(checkCondition);
+    };
+
+    return iterate().then((x) => {
+        console.log('final resolve', x);
+        return final;
+    });
 }
 
 const rules = {
@@ -80,14 +105,19 @@ const rules = {
         },
     },
     special: {
-        currentArea: (state, world) => {
-            return world.areas[state.currentArea].name;
+        currentArea: (state) => {
+            return new Promise((res) => {
+                // for testing
+                setTimeout(() => {
+                    res(state.currentArea.name);
+                }, 300);
+            });
         }
     }
 }
 
-export function replaceWithState(str, state, world) {
-    return replaceWithRules(str, state, world, rules);
+export function replaceWithState(str, state) {
+    return replaceWithRules(str, state, rules);
 }
 
 

@@ -4,15 +4,15 @@ import $ from './jqueryp';
 import * as BJQ from 'bacon.jquery';
 import { createView } from './view';
 import * as R from 'ramda';
-import { getStartData } from './network'
-import { handleCommand } from './game'
+import { get, getStartState } from './world';
+import { handleCommand } from './game';
 
-const updateState = (initialState, world) => {
+const updateState = (initialState) => {
     // Sort of a mutable state hack
     let currentState = initialState;
     return (cmd) => {
         return Bacon.fromPromise(
-            handleCommand(currentState, world, cmd).then(newState => {
+            handleCommand(currentState, cmd).then(newState => {
                 currentState = newState;
                 return newState;
             })
@@ -33,13 +33,13 @@ function getMatchingCommands(cmds, inputCmd) {
 
 
 
-function startGame(initialState, world, view) {
+function startGame(initialState, view) {
     const input = view.commands;
-    const areaCmds = (state) => world.areas[state.currentArea].commands;
+    const areaCmds = (state) => state.currentArea.commands;
 
     const stateS = Bacon.once()
         .merge(input.changes())
-        .flatMapConcat(updateState(initialState, world));
+        .flatMapConcat(updateState(initialState));
     const stateP = stateS.toProperty();
 
     stateP.onValue((state) => {
@@ -64,8 +64,8 @@ function startGame(initialState, world, view) {
 
 
 function start() {
-    getStartData().onValue(({ state, world }) => {
-        startGame(state, world, createView());
+    getStartState().then((state) => {
+        startGame(state, createView());
     });
 }
 

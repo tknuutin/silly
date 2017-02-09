@@ -2,6 +2,7 @@
 
 import * as R from 'ramda';
 import { replaceWithState } from './template';
+import { get } from './world';
 
 const START_Q = [
     "You feel dizzy, like you've just woken up from a heavy nap. You can't quite remember your name.",
@@ -19,11 +20,11 @@ const NAME_INSULTS = [
 
 
 const randomChoice = (arr) => arr[Math.floor(Math.random() * arr.length)];
-const areaByName = (world) => (id) => world.areas[id];
 
-export function handleCommand(oldState, world, input = '') {
+
+
+export function handleCommand(oldState, input = '') {
     const id = Math.random();
-    const getArea = areaByName(world);
 
     const output = [];
  
@@ -38,33 +39,38 @@ export function handleCommand(oldState, world, input = '') {
         cmds: oldState.cmds + 1
     };
 
-    const pushText = (text) => output.push(replaceWithState(text, state, world)); 
+    const rawText = (text) => output.push(text);
+    const templText = (text, pushTo) => 
+        replaceWithState(text, state).then((text) => pushTo.push(text));
 
     if (input) {
-        pushText('> ' + input);
+        rawText('> ' + input);
     }
 
     if (oldState.cmds === 0) {
-        R.forEach((l) => pushText(l), START_Q);
+        R.forEach((l) => rawText(l), START_Q);
     } else if (!state.game.initialized || state.cmds === 1) {
         state.player.name = input;
         state.game.initialized = true;
         const insult = randomChoice(NAME_INSULTS);
-        pushText(`Your name is ${state.player.name}. ${insult}`);
+        rawText(`Your name is ${state.player.name}. ${insult}`);
     }
 
     if (state.game.initialized) {
         const { currentArea, areas } = state;
-        const area = getArea(currentArea);
-        if (!areas[currentArea]) {
-            pushText(area.firstDesc);
-            areas[currentArea] = {};
+        if (!areas[currentArea.id]) {
+            return templText(currentArea.firstDesc, output).then(() => {
+                areas[currentArea] = {};
+                return state;
+            });
         }
     }
 
-    return new Promise((res) => {
-        setTimeout(() => {
-            res(state);
-        }, 200);
-    });
+    return Promise.resolve(state);
+
+    // return new Promise((res) => {
+    //     setTimeout(() => {
+    //         res(state);
+    //     }, 200);
+    // });
 }

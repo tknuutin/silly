@@ -1,5 +1,6 @@
 
 import * as Bacon from 'baconjs';
+import * as R from 'ramda';
 
 // This is all mocked because we don't have a server yet
 
@@ -33,10 +34,20 @@ const BEDROOM_COMMANDS = [
         ],
         outcomes: {
             desc: '',
-            move: 'Kitchen'
+            move: 'core:area:kitchen'
         }
     },
 ];
+
+const START_WORLD = {
+    'area:core:bedroom': {
+        id: 'area:core:bedroom',
+        name: 'Bedroom',
+        desc: "It's your bedroom.",
+        firstDesc: 'You are in your bedroom. There is a window, a bed, and a door. What do you do?',
+        commands: BEDROOM_COMMANDS  
+    }
+}
 
 const STARTSTATE = {
     id: 0,
@@ -59,30 +70,29 @@ const STARTSTATE = {
             luck: 10      // yep
         }
     },
-    currentArea: 'core:bedroom',
+    currentArea: START_WORLD['area:core:bedroom'],
     areas: {},
     output: ['Starting game!']
 }
 
 const AREAS = {
-    'core:bedroom': {
-        name: 'Bedroom',
-        desc: "It's your bedroom.",
-        firstDesc: 'You are in your bedroom. There is a window, a bed, and a door. What do you do?',
-        commands: BEDROOM_COMMANDS  
-    }
-}
 
-function mockRequest(value) {
-    return Bacon.fromCallback((callback) => {
+};
+
+function request(value) {
+    return new Promise((res) => {
         setTimeout(() => {
-            callback(value);
+            res(value);
         }, 300);
     });
 }
 
-export function getStartData() {
-    return mockRequest({ state: STARTSTATE, world: { areas: AREAS }});
+export function getById(id) {
+    if (id === 'start') {
+        return Promise.resolve({ state: STARTSTATE, world: START_WORLD });
+    }
+
+    throw new Error('What');
 }
 
 
