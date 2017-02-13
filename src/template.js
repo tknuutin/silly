@@ -5,7 +5,7 @@ function getValueFromState(pathStr, state, rules) {
     const path = pathStr.split('.');
 
     if (R.path(path, rules.objectAccess)) {
-        return Promise.resolve(R.path(path, state));
+        return R.path(path, state);
     }
 
     const special = rules.special[path[0]];
@@ -29,8 +29,7 @@ function replaceWithRules(str, state, rules) {
     let lastReplaceEnd = 0;
     let lastReplaceStart = 0;
 
-    const step = () => {
-        // console.log('stepping..', i);
+    while (i < len) {
         const symbol = str[i];
         const index = i;
         i++;
@@ -52,39 +51,17 @@ function replaceWithRules(str, state, rules) {
                 found = 1;
             } else if (found === 1) {
                 const valuePath = str.slice(lastReplaceStart + 1, index - 1);
-                return getValueFromState(valuePath, state, rules)
-                    .then((value) => {
-                        final += value;
-                        found = 0;
-                        lastReplaceEnd = index + 1;
-                        replacing = false;
-                    });
+                const text = getValueFromState(valuePath, state, rules);
+                final += text;
+                found = 0;
+                lastReplaceEnd = index + 1;
+                replacing = false;
             }
         }
-        return Promise.resolve();
     };
 
-    const checkCondition = () => {
-        if (i > 142) {
-            debugger;
-        }
-        if (i > len) {
-            final += str.slice(lastReplaceEnd, len);
-            return Promise.resolve();
-        }
-        return iterate();
-    }
-
-    // well this shit is stupid
-    const iterate = () => {
-        console.log('iterating..', i);
-        return step().then(checkCondition);
-    };
-
-    return iterate().then((x) => {
-        console.log('final resolve', x);
-        return final;
-    });
+    final += str.slice(lastReplaceEnd, len);
+    return final;
 }
 
 const rules = {
@@ -92,8 +69,6 @@ const rules = {
         player: {
             name: true,
             health: true,
-            items: true,
-            vars: true,
             stats: {
                 brawn: true,
                 gait: true,
@@ -106,19 +81,17 @@ const rules = {
     },
     special: {
         currentArea: (state) => {
-            return new Promise((res) => {
-                // for testing
-                setTimeout(() => {
-                    res(state.currentArea.name);
-                }, 300);
-            });
+            return state.currentArea.name;
         }
     }
 }
 
-export function replaceWithState(str, state) {
+function applyTemplateToLine(str, state) {
     return replaceWithRules(str, state, rules);
 }
+
+export const applyTemplate = (lines, state) =>
+    R.map((line) => applyTemplateToLine(line, state), lines)
 
 
 

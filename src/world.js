@@ -1,5 +1,5 @@
 
-import { getById } from './network';
+import { getByIds } from './network';
 import * as R from 'ramda';
 
 
@@ -14,12 +14,25 @@ export function get(id) {
         return Promise.resolve(cache[id]);
     }
 
-    return getById(id);
+    return getAndCache([id]);
+}
+
+function getAndCache(ids) {
+    return getByIds(ids)
+        .then((data) => {
+            saveToCache(data);
+            return data;
+        });
+}
+
+export function getAreaData(area) {
+    return getAndCache([area.refs]);
 }
 
 export function getStartState() {
-    return getById('start')
-        .then(({ state, world }) => {
+    return getByIds(['start'])
+        .then((resp) => {
+            const { state, world } = resp.start;
             saveToCache(world);
             return state;
         });

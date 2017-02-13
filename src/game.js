@@ -1,8 +1,8 @@
 
 
 import * as R from 'ramda';
-import { replaceWithState } from './template';
-import { get } from './world';
+import { applyTemplate } from './template';
+import { get, getAreaData } from './world';
 
 const START_Q = [
     "You feel dizzy, like you've just woken up from a heavy nap. You can't quite remember your name.",
@@ -21,56 +21,64 @@ const NAME_INSULTS = [
 
 const randomChoice = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
+const areasL = R.lensProp('areas');
 
+function askName() {
+    return START_Q;
+}
 
-export function handleCommand(oldState, input = '') {
-    const id = Math.random();
+function printName(state) {
+    const insult = randomChoice(NAME_INSULTS);
+    return [`Your name is ${state.player.name}. ${insult}`];
+}
 
-    const output = [];
- 
-    const state = {
-        game: R.clone(oldState.game),
-        player: R.clone(oldState.player),
-        currentArea: R.clone(oldState.currentArea),
-        areas: R.clone(oldState.areas),
-        output: output,
+function enterArea(area, state, output) {
+    return getAreaData(area).then(() => {
+        const { areas, currentArea } = state;
+        if (!areas[currentArea.id]) {
+            const desc = applyTemplate(currentArea.firstDesc, state);
+            return { state: R.set(areasL, area, state), output: output.concat(desc) };
+        }
+
+        return { state, output };    
+    });
+};
+
+function gameStep(state, output) {
+    const { currentArea, lastArea, areas } = state;
+    if (!currentArea.id !== lastArea) {
+        return enterArea(currentArea, state, output);
+    }
+
+    return Promise.resolve({ state, output });
+}
+
+function makeState(old, input) {
+    return {
+        game: R.clone(old.game),
+        player: R.clone(old.player),
+        lastArea: R.clone(old.lastArea),
+        currentArea: R.clone(old.currentArea),
+        areas: R.clone(old.areas),
         id: Math.random(),
         lastInput: input,
-        cmds: oldState.cmds + 1
+        cmds: old.cmds + 1
     };
+}
 
-    const rawText = (text) => output.push(text);
-    const templText = (text, pushTo) => 
-        replaceWithState(text, state).then((text) => pushTo.push(text));
+export function nextState(oldState, input = '') {
+    
+    let state = makeState(oldState, input);
+    let output = [];
 
-    if (input) {
-        rawText('> ' + input);
-    }
-
-    if (oldState.cmds === 0) {
-        R.forEach((l) => rawText(l), START_Q);
-    } else if (!state.game.initialized || state.cmds === 1) {
+    if (!state.game.askedName) {
+        state.game.askedName = true;
+        return Promise.resolve({ state, output: askName() });
+    } else if (!state.game.initialized) {
         state.player.name = input;
         state.game.initialized = true;
-        const insult = randomChoice(NAME_INSULTS);
-        rawText(`Your name is ${state.player.name}. ${insult}`);
+        output = output.concat(printName(state));
     }
 
-    if (state.game.initialized) {
-        const { currentArea, areas } = state;
-        if (!areas[currentArea.id]) {
-            return templText(currentArea.firstDesc, output).then(() => {
-                areas[currentArea] = {};
-                return state;
-            });
-        }
-    }
-
-    return Promise.resolve(state);
-
-    // return new Promise((res) => {
-    //     setTimeout(() => {
-    //         res(state);
-    //     }, 200);
-    // });
+    return gameStep(state, output);
 }

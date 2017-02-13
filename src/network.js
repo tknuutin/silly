@@ -34,26 +34,44 @@ const BEDROOM_COMMANDS = [
         ],
         outcomes: {
             desc: '',
-            move: 'core:area:kitchen'
+            move: 'area:core:kitchen'
         }
     },
 ];
 
-const START_WORLD = {
+
+
+const AREAS = {
     'area:core:bedroom': {
+        refs: ['core:area:kitchen'],
         id: 'area:core:bedroom',
         name: 'Bedroom',
-        desc: "It's your bedroom.",
-        firstDesc: 'You are in your bedroom. There is a window, a bed, and a door. What do you do?',
-        commands: BEDROOM_COMMANDS  
+        desc: ["It's your bedroom."],
+        firstDesc: ['You are in your bedroom. There is a window, a bed, and a door. What do you do? {{currentArea}}'],
+        commands: BEDROOM_COMMANDS
+    },
+    'area:core:kitchen': {
+        refs: ['core:area:kitchen'],
+        id: 'area:core:bedroom',
+        name: 'Kitchen',
+        desc: ["It's your bedroom."],
+        firstDesc: ['You are in your kitchen.'],
+        commands: [{
+            cmd: 'go to bedroom',
+            outcomes: {
+                move: 'area:core:bedroom'
+            }
+        }],  
     }
 }
 
 const STARTSTATE = {
     id: 0,
     lastInput: '',
-    cmds: 0,
+    lastArea: null,
+    cmds: -1,
     game: {
+        askedName: false,
         initialized: false,
     },
     player: {
@@ -70,14 +88,14 @@ const STARTSTATE = {
             luck: 10      // yep
         }
     },
-    currentArea: START_WORLD['area:core:bedroom'],
+    currentArea: AREAS['area:core:bedroom'],
     areas: {},
     output: ['Starting game!']
 }
 
-const AREAS = {
-
-};
+const IDS = R.merge({
+    'start': { state: STARTSTATE, world: { 'area:core:bedroom': AREAS['area:core:bedroom'] } },
+}, AREAS);
 
 function request(value) {
     return new Promise((res) => {
@@ -87,12 +105,13 @@ function request(value) {
     });
 }
 
-export function getById(id) {
-    if (id === 'start') {
-        return Promise.resolve({ state: STARTSTATE, world: START_WORLD });
+export function getByIds(ids) {
+    const data = R.pickAll(ids, IDS);
+    if (!R.all(Object.values(data))) {
+        throw new Error('could not find ids!');
     }
 
-    throw new Error('What');
+    return Promise.resolve(data);
 }
 
 
