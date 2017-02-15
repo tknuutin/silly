@@ -1,11 +1,10 @@
 
 import * as Bacon from 'baconjs';
-import $ from './jqueryp';
-import * as BJQ from 'bacon.jquery';
-import { createView } from './view';
 import * as R from 'ramda';
-import { get, getStartState } from './world';
-import { nextState } from './game';
+
+import { createView } from './views/view';
+import { get, getStartState } from './game/world';
+import { nextState } from './game/game';
 
 const updateState = (initialState) => {
     // Sort of a mutable state hack

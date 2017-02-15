@@ -1,5 +1,5 @@
 
-import { getByIds } from './network';
+import { getByIds } from '../api/network';
 import * as R from 'ramda';
 
 
