@@ -9,6 +9,8 @@ function saveToCache(ids) {
     cache = R.merge(cache, ids);
 }
 
+window._worldToJson = () => JSON.stringify(cache);
+
 export function get(id) {
     if (!cache[id]) {
         throw new Error('Could not find resource: ' + id);
@@ -26,7 +28,8 @@ function getAndCache(ids) {
 }
 
 export function fetchAreaData(areaId) {
-    return getAndCache(areaId).then((area) => {
+    return getAndCache([areaId]).then((data) => {
+        const area = data[areaId];
         return getAndCache(area.refs).then(() => {
             return area;
         });

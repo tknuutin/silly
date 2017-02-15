@@ -43,10 +43,10 @@ const AREAS = {
         commands: BEDROOM_COMMANDS
     },
     'area:core:kitchen': {
-        refs: ['core:area:kitchen'],
-        id: 'area:core:bedroom',
+        refs: ['core:area:bedroom'],
+        id: 'area:core:kitchen',
         name: 'Kitchen',
-        desc: ["It's your bedroom."],
+        desc: ["It's your kitchen."],
         firstDesc: ['You are in your kitchen.'],
         commands: [{
             trigger: 'go to bedroom',
@@ -87,8 +87,15 @@ const STARTSTATE = {
     output: ['Starting game!']
 }
 
+const DEBUGSTATE = null;
+const DEBUGWORLD = null;
+
+
 const IDS = R.merge({
-    'start': { state: STARTSTATE, world: { 'area:core:bedroom': AREAS['area:core:bedroom'] } },
+    'start': {
+        state: DEBUGSTATE || STARTSTATE,
+        world: DEBUGWORLD || { 'area:core:bedroom': AREAS['area:core:bedroom']}
+    },
 }, AREAS);
 
 function request(value) {
@@ -97,6 +104,10 @@ function request(value) {
             res(value);
         }, 300);
     });
+}
+
+export function getById(id) {
+    return getByIds([ids]).then((data) => data[id]);
 }
 
 export function getByIds(ids) {

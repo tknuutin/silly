@@ -2,7 +2,7 @@
 
 import * as R from 'ramda';
 import { applyTemplate } from './template';
-import { get, getAreaData } from './world';
+import { get, fetchAreaData } from './world';
 import * as Text from './text';
 import * as Logic from './logic';
 import * as GEvent from './gevent'

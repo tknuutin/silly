@@ -10,10 +10,19 @@ import { nextState } from './game';
 const updateState = (initialState) => {
     // Sort of a mutable state hack
     let currentState = initialState;
+
+    const setState = (state) => {
+        currentState = state;
+        window._state = state;  // For debug
+
+    }
+
+    window._stateToJson = () => JSON.stringify(currentState);
+
     return (cmd) => {
         return Bacon.fromPromise(
             nextState(currentState, cmd).then((state) => {
-                currentState = state;
+                setState(state);
                 return state;
             })
         );
