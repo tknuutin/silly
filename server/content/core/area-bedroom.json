@@ -1,0 +1,33 @@
+{
+    "refs": ["core:area:kitchen"],
+    "id": "core:area:bedroom",
+    "name": "Bedroom",
+    "desc": ["It's your bedroom."],
+    "firstDesc": ["You are in your bedroom. There is a window, a bed, and a door. What do you do?"],
+    "commands": [
+        {
+            "trigger": "look at room",
+            "usable": 1,
+            "events": {
+                "desc": "You look out of your window. It's a grey, boring autumn day in the street below."
+            }
+        },
+        {
+            "trigger": "open door",
+            "events": [
+                {
+                    "desc": "You open the door. The smell from the kitchen hits you in the face.",
+                    "set": ["global:has_opened_bedroom_door", 1]
+                }
+            ]
+        },
+        {
+            "trigger": "go to kitchen",
+            "available": { "exists": ["global:has_opened_bedroom_door"]},
+            "events": [{
+                "desc": "",
+                "move": "core:area:kitchen"
+            }]
+        }
+    ]
+}

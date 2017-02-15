@@ -1,0 +1,16 @@
+{
+    "refs": ["core:area:bedroom"],
+    "id": "core:area:kitchen",
+    "name": "Kitchen",
+    "desc": ["It's your kitchen."],
+    "firstDesc": ["You have entered the kitchen. There is a fridge, a lamp, and a worrying crack on the ceiling. There is a door to the bathroom and to the stairs."],
+    "commands": [
+        {
+            "trigger": "go to bedroom",
+            "events": [{
+                "desc": "",
+                "move": "core:area:bedroom"
+            }]
+        }
+    ]
+}
