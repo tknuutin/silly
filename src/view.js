@@ -78,6 +78,8 @@ export function createView() {
         }
     }
 
+    validCommands.onValue((cmd) => print('> ' + cmd))
+
     const onCommand = () => {
         screen.scrollTop(screen[0].scrollHeight);
     }
@@ -92,6 +94,6 @@ export function createView() {
         onCommand, tabs,
         invalidInput: input,
         validInput: validInput,
-        commands: validCommands,
+        commands: validCommands.delay(500),
     }
 }

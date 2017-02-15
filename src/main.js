@@ -29,7 +29,6 @@ function getMatchingCommands(cmds, inputCmd) {
 
     const testCmd = inputCmd.length === 2 ? inputCmd + ' ' : inputCmd;
     const matching = R.filter(({ trigger }) => trigger.indexOf(testCmd) === 0);
-    // debugger;
 
     return R.map(trigger, matching(cmds));
 }
@@ -62,8 +61,6 @@ function initSuggestions(view, stateS) {
 
 function initStateHandling(initialState, view) {
     const input = view.commands;
-
-    input.onValue((cmd) => view.print('> ' + cmd))
 
     const stateS = Bacon.once()
         .merge(input.changes())
