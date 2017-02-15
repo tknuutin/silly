@@ -67,6 +67,12 @@ function startServer(config){
     var app = Express();
     var server = Http.createServer(app);
 
+    app.use(Express.static('build', {
+        setHeaders: function(res, path, stat){
+            res.set('Access-Control-Allow-Origin', '*');
+        }
+    }));
+
     app.get('/content/', (req, res) => {
         var ids = req.query.ids.split(',').map((ids) => {
             var split = ids.split(':');
