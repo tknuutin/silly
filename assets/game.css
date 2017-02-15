@@ -5,6 +5,14 @@ body {
     
 }
 
+.errors {
+    color: red;
+}
+
+.empty-errors {
+    display: none;
+}
+
 body, input {
     font-family: 'Jura', sans-serif;
     font-size: 16pt;

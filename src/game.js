@@ -38,6 +38,8 @@ function enterArea(areaId, state) {
 
         if (!areas[currentArea.id]) {
             return firstVisitOnArea(currentArea, state);
+        } else {
+            print(state, applyTemplate(currentArea.desc, state));
         }
 
         return state;    
@@ -67,19 +69,26 @@ function getCommand(state, area, inputCmd) {
     return R.find(({ trigger }) => trigger === inputCmd, availables);
 }
 
-function getdef(obj, prop, val) {
-    const newval = obj[prop] === undefined ? val : obj[prop];
-    return R.set(R.lensProp(prop), newval, obj);
-}
-
 function useCommand(command, currentArea, state) {
-    const area = getdef(state.areas, currentArea.id, {});
-    const cmds = getdef(area, 'cmds', {});
-    const cmdDef = getdef(cmds, command, {});
-    cmdDef.used = (cmdDef.used || 0) + 1;
+    const { areas } = state;
+    const area = areas[currentArea.id] ?
+        R.clone(areas[currentArea.id]) :
+        R.set(R.lensProp(currentArea.id), {}, areas);
+
+    if (!area.cmds) {
+        area.cmds = {};
+    }
+
+    if (!area.cmds[command.trigger]) {
+        area.cmds[command.trigger] = {};
+    }
+
+    const used = area.cmds[command.trigger].used || 0;
+    area.cmds[command.trigger].used = used + 1;
+
     return R.set(
         l.areas,
-        R.set(R.lensProp(currentArea.id), area, state.areas),
+        R.set(R.lensProp(currentArea.id), area, areas),
         state
     );
 }

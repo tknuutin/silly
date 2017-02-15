@@ -88,6 +88,13 @@ export function createView() {
         commandInput.val(val);
     }
 
+    let errors = 0;
+    const errordiv = $('#errors');
+    const showError = () => {
+        errors++;
+        errordiv.removeClass('empty-errors');
+    }
+
     return {
         setValue,
         print, showSuggestions,

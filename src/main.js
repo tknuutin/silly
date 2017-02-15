@@ -76,6 +76,7 @@ function initStateHandling(initialState, view) {
         .flatMapConcat(updateState(initialState));
     stateS.onError((e) => {
         console.error(e);
+        view.showError(e);
     });
     const stateP = stateS.toProperty();
 
