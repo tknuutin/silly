@@ -10,11 +10,11 @@ function saveToCache(ids) {
 }
 
 export function get(id) {
-    if (cache[id]) {
-        return Promise.resolve(cache[id]);
+    if (!cache[id]) {
+        throw new Error('Could not find resource: ' + id);
     }
 
-    return getAndCache([id]);
+    return cache[id];
 }
 
 function getAndCache(ids) {
@@ -25,8 +25,12 @@ function getAndCache(ids) {
         });
 }
 
-export function getAreaData(area) {
-    return getAndCache([area.refs]);
+export function fetchAreaData(areaId) {
+    return getAndCache(areaId).then((area) => {
+        return getAndCache(area.refs).then(() => {
+            return area;
+        });
+    });
 }
 
 export function getStartState() {

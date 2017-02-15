@@ -12,13 +12,15 @@ const updateState = (initialState) => {
     let currentState = initialState;
     return (cmd) => {
         return Bacon.fromPromise(
-            nextState(currentState, cmd).then(({ state, output }) => {
+            nextState(currentState, cmd).then((state) => {
                 currentState = state;
-                return { state, output };
+                return state;
             })
         );
     };
 }
+
+const trigger = R.prop('trigger');
 
 function getMatchingCommands(cmds, inputCmd) {
     if (!inputCmd || inputCmd.length < 2) {
@@ -26,19 +28,36 @@ function getMatchingCommands(cmds, inputCmd) {
     }
 
     const testCmd = inputCmd.length === 2 ? inputCmd + ' ' : inputCmd;
-    const matching = R.filter(({ cmd }) => cmd.indexOf(testCmd) === 0);
+    const matching = R.filter(({ trigger }) => trigger.indexOf(testCmd) === 0);
+    // debugger;
 
-    return R.map(R.prop('cmd'), matching(cmds));
+    return R.map(trigger, matching(cmds));
 }
 
-function initSuggestions(view, areaCommands) {
+function initSuggestions(view, stateS) {
+    const gameInitialized = stateS
+        .toProperty()
+        .map((state) => state.game.initialized);
+
+    // FIX THIS TO ACCOUNT FOR NEW WAY OF GETTING SUGGESTIONS
+
+    const areaCommands = stateS
+        .filter(gameInitialized)
+        .map((state) => state.suggestions.areaCmds)
+        .toProperty();
+
     const validInputP = view.validInput.toProperty();
     const matchingCommands = areaCommands
         .sampledBy(validInputP, getMatchingCommands);
 
     const suggestions = view.validInput.map(matchingCommands);
     suggestions.onValue(view.showSuggestions);
+
     view.invalidInput.onValue(() => view.showSuggestions(null));
+    
+    suggestions.toProperty().sampledBy(view.tabs).onValue((sugg) => {
+        view.setValue(sugg[0]);
+    });
 }
 
 function initStateHandling(initialState, view) {
@@ -49,10 +68,13 @@ function initStateHandling(initialState, view) {
     const stateS = Bacon.once()
         .merge(input.changes())
         .flatMapConcat(updateState(initialState));
+    stateS.onError((e) => {
+        console.error(e);
+    });
     const stateP = stateS.toProperty();
 
-    stateP.onValue(({ state, output }) => {
-        R.forEach(view.print, output);
+    stateP.onValue((state) => {
+        R.forEach(view.print, state.output);
         view.onCommand();
     });
 
@@ -60,10 +82,10 @@ function initStateHandling(initialState, view) {
 }
 
 function getAreaCommands(stateS) {
-    const areaCmds = ({ state }) => state.currentArea.commands;
+    const areaCmds = (state) => state.currentArea.commands;
     const gameInitialized = stateS
         .toProperty()
-        .map(({ state }) => state.game.initialized);
+        .map((state) => state.game.initialized);
 
     const areaCommands = stateS.map(areaCmds)
         .filter(gameInitialized).toProperty();
@@ -75,7 +97,7 @@ function start() {
         const view = createView();
         const stateS = initStateHandling(state, view);
         const areaCommands = getAreaCommands(stateS)
-        initSuggestions(view, areaCommands);
+        const suggestions= initSuggestions(view, stateS);
     });
 }
 

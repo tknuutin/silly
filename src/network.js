@@ -6,36 +6,28 @@ import * as R from 'ramda';
 
 const BEDROOM_COMMANDS = [
     {
-        cmd: 'look at room',
-        outcomes: {
+        trigger: 'look at room',
+        usable: 1,
+        events: {
             desc: "You look out of your window. It's a grey, boring autumn day in the street below.",
         }
     },
     {
-        cmd: 'open door',
-        outcomes: {
-            desc: "You open the door. The smell from the kitchen hits you in the face.",
-            globalVars: [
-                {
-                    name: 'has_opened_bedroom_door',
-                    set: 1
-                }
-            ]
-        }
+        trigger: 'open door',
+        events: [
+            {
+                desc: "You open the door. The smell from the kitchen hits you in the face.",
+                set: ['global:has_opened_bedroom_door', 1]
+            }
+        ]
     },
     {
-        cmd: 'go to kitchen',
-        available: [
-            {
-                globalVars: {
-                    exists: 'has_opened_bedroom_door'
-                }
-            }
-        ],
-        outcomes: {
+        trigger: 'go to kitchen',
+        available: { exists: ['global:has_opened_bedroom_door']},
+        events: [{
             desc: '',
             move: 'area:core:kitchen'
-        }
+        }]
     },
 ];
 
@@ -47,7 +39,7 @@ const AREAS = {
         id: 'area:core:bedroom',
         name: 'Bedroom',
         desc: ["It's your bedroom."],
-        firstDesc: ['You are in your bedroom. There is a window, a bed, and a door. What do you do? {{currentArea}}'],
+        firstDesc: ['You are in your bedroom. There is a window, a bed, and a door. What do you do?'],
         commands: BEDROOM_COMMANDS
     },
     'area:core:kitchen': {
@@ -57,8 +49,8 @@ const AREAS = {
         desc: ["It's your bedroom."],
         firstDesc: ['You are in your kitchen.'],
         commands: [{
-            cmd: 'go to bedroom',
-            outcomes: {
+            trigger: 'go to bedroom',
+            events: {
                 move: 'area:core:bedroom'
             }
         }],  
@@ -74,6 +66,8 @@ const STARTSTATE = {
         askedName: false,
         initialized: false,
     },
+    time: 0,
+    vars: {},
     player: {
         name: '',
         health: 100,

@@ -4,12 +4,21 @@ import $ from './jqueryp';
 import * as BJQ from 'bacon.jquery';
 import * as R from 'ramda';
 
+const KEYS = {
+    ENTER: 13,
+    TAB: 9
+}
 
 function submitOnEnter(evt, inputEl) {
-    if (evt.which == 13) {
+    // console.log('which', evt.which)
+    if (evt.which == KEYS.ENTER) {
         inputEl.submit();
         return false;
     }
+}
+
+function isTab(evt) {
+    return evt.which === KEYS.TAB;
 }
 
 function addTextParagraph(text, el) {
@@ -23,10 +32,16 @@ function initInput(commandInput) {
         commandInput.focus();
     });
 
+    const tabs = commandInput.keydownE().filter(isTab);
+    tabs.onValue((evt) => {
+        evt.preventDefault();
+    });
+
     commandInput.keypressE().onValue((evt) => submitOnEnter(evt, commandInput));
 
     const input = BJQ.textFieldValue(commandInput);
     const fakeInputText = $('#fakeinputtext');
+
     input.onValue((val) => {
         fakeInputText.text(val);
     });
@@ -42,12 +57,12 @@ function initInput(commandInput) {
         .filter(inputIsValid);
 
     validCommands.onValue(() => commandInput.val(''));
-    return { input, validInput, validCommands };
+    return { input, validInput, validCommands, tabs };
 }
 
 export function createView() {
     const commandInput = $('#command');
-    const { input, validInput, validCommands } = initInput(commandInput);
+    const { input, validInput, validCommands, tabs } = initInput(commandInput);
     commandInput.focus();
 
     const screen = $('#screen');
@@ -67,9 +82,14 @@ export function createView() {
         screen.scrollTop(screen[0].scrollHeight);
     }
 
+    const setValue = (val) => {
+        commandInput.val(val);
+    }
+
     return {
+        setValue,
         print, showSuggestions,
-        onCommand,
+        onCommand, tabs,
         invalidInput: input,
         validInput: validInput,
         commands: validCommands,

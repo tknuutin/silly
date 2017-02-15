@@ -1,5 +1,6 @@
 
 import * as R from 'ramda';
+import { ensureArray } from './utils';
 
 function getValueFromState(pathStr, state, rules) {
     const path = pathStr.split('.');
@@ -17,6 +18,7 @@ function getValueFromState(pathStr, state, rules) {
 }
 
 function replaceWithRules(str, state, rules) {
+    // This whole function is a bit dump
     const open = '{';
     const close = '}';
 
@@ -91,7 +93,7 @@ function applyTemplateToLine(str, state) {
 }
 
 export const applyTemplate = (lines, state) =>
-    R.map((line) => applyTemplateToLine(line, state), lines)
+    R.map((line) => applyTemplateToLine(line, state), ensureArray(lines))
 
 
 
