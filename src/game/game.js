@@ -7,7 +7,7 @@ import * as Text from './text';
 import * as Logic from './logic';
 import * as GEvent from './gevent'
 import * as Command from './command';
-import * as Description from './desc';
+import { areaDesc } from './desc';
 import { isString, isArray, trunc } from './utils';
 
 // I dunno
@@ -24,10 +24,6 @@ function print(state, text) {
     text = isArray(text) ? text : [text];
     R.forEach((l) => state.output.push(l), text);
     return state;
-}
-
-function areaDesc(state, desc) {
-    return Description.get(state, desc, Description.transforms.area);
 }
 
 function firstVisitOnArea(area, state) {

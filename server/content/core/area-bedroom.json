@@ -4,6 +4,7 @@
         "core:item:bedroom-paper"
     ],
     "id": "core:area:bedroom",
+    "tags": ["room", "home"],
     "name": "Bedroom",
     "desc": ["It's your bedroom."],
     "firstDesc": {

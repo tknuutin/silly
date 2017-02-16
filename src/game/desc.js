@@ -49,7 +49,7 @@ export const transforms = {
 
 function getTextLines(def) {
     if (!def) {
-        throw new Error('No description on ')
+        throw new Error('No description: ' + def)
     } else if (isString(def)) {
         return [def];
     } else if (isArray(def)) {
@@ -71,3 +71,12 @@ export function get(state, def, transform = null) {
     }
     return applyTemplate(textArr, state);
 }
+
+export function areaDesc(state, desc) {
+    return get(state, desc, transforms.area);
+}
+
+export function itemDesc(state, desc, equipped = false) {
+    return get(state, desc, (def) => transform.item(state, def, equipped))
+}
+

@@ -27,3 +27,6 @@ export function trunc(str, limit = 50) {
 
 export const upper = R.map(R.toUpper);
 
+export function findByProp(prop, eq, list) {
+	return R.find((elem) => prop(elem) === eq, list);
+}
