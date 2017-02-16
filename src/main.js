@@ -46,8 +46,6 @@ function initSuggestions(view, stateS) {
         .toProperty()
         .map((state) => state.game.initialized);
 
-    // FIX THIS TO ACCOUNT FOR NEW WAY OF GETTING SUGGESTIONS
-
     const areaCommands = stateS
         .filter(gameInitialized)
         .map((state) => state.suggestions.areaCmds)

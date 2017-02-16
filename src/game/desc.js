@@ -28,10 +28,11 @@ function getTextForGameObjects(items) {
     const last = getName(R.last(items));
     const rest = getNames(R.init(items)).join(', ');
 
-    return `There is a ${rest} here.`;
+    return `There is a ${rest} and a ${last} here.`;
 }
 
 function areaTransform(state, def) {
+    // This is like the best function ive written
     const noDesc = def.noSeparateDesc || [];
     const text = getTextLines(def.text);
     const area = state.currentArea;

@@ -10,11 +10,11 @@ import * as Command from './command';
 import * as Description from './desc';
 import { isString, isArray, trunc } from './utils';
 
+// I dunno
 const l = {
     areas: R.lensProp('areas'),
     currentArea: R.lensProp('currentArea'),
 };
-
 const pr = {
     cancel: R.prop('cancel')
 }
@@ -31,7 +31,6 @@ function areaDesc(state, desc) {
 }
 
 function firstVisitOnArea(area, state) {
-    // debugger;
     const desc = areaDesc(state, area.firstDesc);
     print(state, desc);
     return R.set(l.areas, R.set(R.lensProp(area.id), {}, state.areas), state);
@@ -56,6 +55,7 @@ function enterArea(areaId, state) {
 
 function moveTime(time, state) {
     state.time += time || 5;
+    // Add stuff here later like monster attacks, grapples or something
     return { state, interrupts: [], deferred: [] };
 }
 
@@ -107,6 +107,8 @@ function handleCommandFromPlayer(state, inputCmd) {
 }
 
 function makeState(old, inputCmd) {
+    // I'm not too sure about this but eh whatever unless the
+    // perf becomes a problem...????
     return {
         game: R.clone(old.game),
         player: R.clone(old.player),
