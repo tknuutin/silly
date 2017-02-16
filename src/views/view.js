@@ -10,7 +10,6 @@ const KEYS = {
 }
 
 function submitOnEnter(evt, inputEl) {
-    // console.log('which', evt.which)
     if (evt.which == KEYS.ENTER) {
         inputEl.submit();
         return false;
@@ -22,6 +21,7 @@ function isTab(evt) {
 }
 
 function addTextParagraph(text, el) {
+    // debugger;
     const p = $(document.createElement('p'));
     p.text(text);
     el.append(p);

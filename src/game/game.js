@@ -6,6 +6,9 @@ import { get, fetchAreaData } from './world';
 import * as Text from './text';
 import * as Logic from './logic';
 import * as GEvent from './gevent'
+import * as Command from './command';
+import * as Description from './desc';
+import { isString, isArray, trunc } from './utils';
 
 const l = {
     areas: R.lensProp('areas'),
@@ -18,13 +21,18 @@ const pr = {
 
 
 function print(state, text) {
-    state.output.push(text);
+    text = isArray(text) ? text : [text];
+    R.forEach((l) => state.output.push(l), text);
     return state;
 }
 
+function areaDesc(state, desc) {
+    return Description.get(state, desc, Description.transforms.area);
+}
 
 function firstVisitOnArea(area, state) {
-    const desc = applyTemplate(area.firstDesc, state);
+    // debugger;
+    const desc = areaDesc(state, area.firstDesc);
     print(state, desc);
     return R.set(l.areas, R.set(R.lensProp(area.id), {}, state.areas), state);
 }
@@ -39,59 +47,12 @@ function enterArea(areaId, state) {
         if (!areas[currentArea.id]) {
             return firstVisitOnArea(currentArea, state);
         } else {
-            print(state, applyTemplate(currentArea.desc, state));
+            print(state, areaDesc(state, currentArea.desc));
         }
 
         return state;    
     });
 };
-
-function isCommandAvailable(command, currentArea, state) {
-    const areaInfo = state.areas[currentArea.id] || {};
-    const usedCmds = areaInfo.cmds || {};
-    const { trigger, available, usable } = command;
-    const history = usedCmds[trigger];
-    return (
-        (!history || usable === undefined || usable > history.used) &&
-        Logic.isTrue(state, available)
-    );
-}
-
-function getAvailableCommands(state, area) {
-    return R.filter(
-        (command) => isCommandAvailable(command, area, state),
-        area.commands
-    );
-}
-
-function getCommand(state, area, inputCmd) {
-    const availables = getAvailableCommands(state, area);
-    return R.find(({ trigger }) => trigger === inputCmd, availables);
-}
-
-function useCommand(command, currentArea, state) {
-    const { areas } = state;
-    const area = areas[currentArea.id] ?
-        R.clone(areas[currentArea.id]) :
-        R.set(R.lensProp(currentArea.id), {}, areas);
-
-    if (!area.cmds) {
-        area.cmds = {};
-    }
-
-    if (!area.cmds[command.trigger]) {
-        area.cmds[command.trigger] = {};
-    }
-
-    const used = area.cmds[command.trigger].used || 0;
-    area.cmds[command.trigger].used = used + 1;
-
-    return R.set(
-        l.areas,
-        R.set(R.lensProp(currentArea.id), area, areas),
-        state
-    );
-}
 
 function moveTime(time, state) {
     state.time += time || 5;
@@ -125,9 +86,9 @@ function handleEvent(event, state) {
 function handleCommandFromPlayer(state, inputCmd) {
     const { currentArea, lastArea, areas } = state;
 
-    const command = getCommand(state, currentArea, inputCmd);
+    const command = Command.getCommand(state, currentArea, inputCmd);
     if (command) {
-        state = useCommand(command, currentArea, state);
+        state = Command.useCommand(command, currentArea, state);
         const event = GEvent.getEvent(command.events, state);
         if (event) {
             const eventResult = handleEvent(event, state);
@@ -164,7 +125,7 @@ function makeState(old, inputCmd) {
 
 function getSuggestions(state) {
     state.suggestions = {
-        areaCmds: getAvailableCommands(state, state.currentArea)
+        areaCmds: Command.getAvailableCommands(state, state.currentArea)
     };
     return state;
 }

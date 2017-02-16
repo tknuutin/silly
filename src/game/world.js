@@ -1,6 +1,7 @@
 
 import { getByIds } from '../api/network';
 import * as R from 'ramda';
+import { isString } from './utils'; 
 
 
 let cache = {};
@@ -30,17 +31,65 @@ function getAndCache(ids) {
 export function fetchAreaData(areaId) {
     return getAndCache([areaId]).then((data) => {
         const area = data[areaId];
-        return getAndCache(area.refs).then(() => {
+        const refs = area.refs
+            .concat(area.items || [])
+            .concat(area.monsters || [])
+        return getAndCache(refs).then(() => {
             return area;
         });
     });
 }
 
+const STARTSTATE = {
+    id: 0,
+    lastInput: '',
+    lastArea: null,
+    cmds: -1,
+    game: {
+        askedName: false,
+        initialized: false,
+    },
+    time: 0,
+    vars: {},
+    player: {
+        name: '',
+        health: 100,
+        items: [
+            {
+                id: 'core:item:player-mouth',
+                equipped: true
+            }
+        ],
+        vars: [],
+        stats: {
+            brawn: 10,    // strength
+            gait: 10,     // speed
+            allure: 10,   // charisma
+            mind: 10,     // intelligence
+            grit: 10,     // stamina
+            luck: 10      // yep
+        }
+    },
+    currentArea: null, // set later
+    areas: {},
+    output: ['Starting game!']
+}
+
+const DEBUGSTATE = null;
+const DEBUGWORLD = null;
+
 export function getStartState() {
-    return getByIds(['start'])
-        .then((resp) => {
-            const { state, world } = resp.start;
-            saveToCache(world);
+    const startAreaId = 'core:area:bedroom';
+    return fetchAreaData([startAreaId])
+        .then((area) => {
+            const state = R.clone(DEBUGSTATE || STARTSTATE);
+            state.currentArea = area;
+            // debugger;
+
+            if (DEBUGWORLD) {
+                saveToCache(DEBUGWORLD);    
+            }
+            
             return state;
         });
 }

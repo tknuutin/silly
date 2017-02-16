@@ -14,7 +14,6 @@ export function unknownCommand() {
     return "You are startled by a strange thought you just had.";
 }
 
-
 export function nameAsk() {
     return [
         "You feel dizzy, like you've just woken up from a heavy nap. You can't quite remember your name.",

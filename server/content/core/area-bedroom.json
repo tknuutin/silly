@@ -1,9 +1,15 @@
 {
-    "refs": ["core:area:kitchen"],
+    "refs": [
+        "core:item:bedroom-bed",
+        "core:item:bedroom-paper"
+    ],
     "id": "core:area:bedroom",
     "name": "Bedroom",
     "desc": ["It's your bedroom."],
-    "firstDesc": ["You are in your bedroom. There is a window, a bed, and a door. What do you do?"],
+    "firstDesc": {
+        "text": ["You are in your bedroom. There is a WINDOW, a BED, and a DOOR. What do you do?"],
+        "noSeparateDesc": ["core:item:bedroom-bed"]
+    },
     "commands": [
         {
             "trigger": "look at room",
@@ -29,5 +35,9 @@
                 "move": "core:area:kitchen"
             }]
         }
+    ],
+    "items": [
+        "core:item:bedroom-bed",
+        "core:item:bedroom-paper"
     ]
 }
