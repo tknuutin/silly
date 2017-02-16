@@ -3,7 +3,7 @@ Silly text game
 
 ## Installing
 
-Install node, npm, and gulp globally.
+Install node, npm, and gulp globally. For type checking, install also Typescript (`tsc`).
 
 `npm install .`
 
