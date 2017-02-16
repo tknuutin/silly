@@ -1,6 +1,7 @@
 
-import { VariableRef} from './common';
+import { VariableRef } from './common';
 
 export interface LogicExpression {
+	// Do these 
     exists?: Array<VariableRef>
 }

@@ -25,5 +25,9 @@ Browse to `http://localhost:3000/build/index.html`.
 
 ## Adding content
 
-Modify or add `.json` files in server/content/.
+Modify or add `.json` files in `server/content/`. Some sort of format documentation can be found in the `types/` folder.
+
+Type check content with `gulp typecheck` (requires `tsc` in the path):
+
+`gulp typecheck --file server/content/core/area-bedroom.json --type area`
 
