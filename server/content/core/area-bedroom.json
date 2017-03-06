@@ -15,13 +15,15 @@
     "commands": [
         {
             "trigger": "look at room",
-            "usable": 1,
+            "alias": ["examine window", "look out of window"],
+            "invisibleAlias": ["peep at window"],
             "events": {
                 "desc": "You look out of your window. It's a grey, boring autumn day in the street below."
             }
         },
         {
             "trigger": "open door",
+            "usable": 1,
             "events": [
                 {
                     "desc": "You open the door. The smell from the kitchen hits you in the face.",

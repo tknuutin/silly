@@ -31,15 +31,19 @@ const updateState = (initialState) => {
 const trigger = R.prop('trigger');
 
 function getMatchingCommands({ builtins, areaCmds }, inputCmd) {
-    // debugger;
     if (!inputCmd || inputCmd.length < 2) {
         return [];
     }
 
     const testCmd = inputCmd.length === 2 ? inputCmd + ' ' : inputCmd;
-    const matching = R.filter(({ trigger }) => trigger.indexOf(testCmd) === 0);
-    const matchingAreaCommands = R.map(trigger, matching(areaCmds));
-    const matchingSuggestions = R.map(trigger, matching(builtins))
+    const findMatches = R.reduce((acc, cmd) => {
+        const triggers = [cmd.trigger].concat(cmd.alias || []);
+        const newMatches = R.filter((trigger) => trigger.indexOf(testCmd) === 0, triggers);
+        return acc.concat(newMatches);
+    }, []);
+
+    const matchingAreaCommands = findMatches(areaCmds);
+    const matchingSuggestions = findMatches(builtins);
 
     return matchingAreaCommands.concat(matchingSuggestions);
 }

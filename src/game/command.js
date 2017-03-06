@@ -35,8 +35,6 @@ const examine = (state, match, inputCmd) => {
         }
     }
 
-    debugger;
-
     const pname = R.prop('name');
     const playerItemMatch = findByName(target, getRefs(state.player.items));
     if (playerItemMatch) {
@@ -98,9 +96,14 @@ function getInBuiltCommand(state, inputCmd) {
     return null;
 }
 
+function commandTriggerMatches(cmd, inputCmd) {
+    const triggers = [cmd.trigger].concat(cmd.alias || []).concat(cmd.invisibleAlias);
+    return R.any(R.equals(inputCmd), triggers);
+}
+
 function getAreaCommand(state, area, inputCmd) {
     const availables = getAvailableAreaCommands(state, area);
-    return R.find(({ trigger }) => trigger === inputCmd, availables);
+    return R.find((cmd) => commandTriggerMatches(cmd, inputCmd), availables);
 }
 
 export function getCommand(state, area, inputCmd) {

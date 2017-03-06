@@ -3,7 +3,7 @@
     "name": "Powerful mouth",
     "desc": "It's your mouth!",
     "carry": {
-    	"droppable": false,
+        "droppable": false,
         "carryDesc": "Your teeth glisten with barely controlled fury..."
     }
 }
