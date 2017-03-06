@@ -1,7 +1,8 @@
 {
     "refs": [
         "core:item:bedroom-bed",
-        "core:item:bedroom-paper"
+        "core:item:bedroom-paper",
+        "core:item:player-mouth"
     ],
     "id": "core:area:bedroom",
     "tags": ["room", "home"],
@@ -38,7 +39,7 @@
         }
     ],
     "items": [
-        "core:item:bedroom-bed",
-        "core:item:bedroom-paper"
+        { "ref": "core:item:bedroom-bed" },
+        { "ref": "core:item:bedroom-paper" }
     ]
 }

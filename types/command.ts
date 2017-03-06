@@ -20,4 +20,8 @@ export interface Command {
     // logic expression evaluates to false, it's as if the command
     // did not even exist.
     available?: LogicExpression;
+
+    // Default false. If true, the command can be triggered
+    // but it will not be suggested to the player.
+    invisible?: boolean;
 }

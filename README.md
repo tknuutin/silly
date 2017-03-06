@@ -3,19 +3,17 @@ Silly text game
 
 ## Installing
 
-Install node, npm, and gulp globally. For type checking, install also Typescript (`tsc`).
+Install node, npm, and gulp. For adding content, you should install also Typescript (`tsc`).
+
+Then simply:
 
 `npm install .`
-
-Also install gulp globally.
-
-Uses Ramda and Bacon.js on the client.
 
 ## Building
 
 `gulp build`.
 
-The built app will be in ./build/.
+The built app will be in `build`.
 
 ## Running
 

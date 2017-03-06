@@ -1,10 +1,9 @@
 {
-    "id": "item:player-mouth",
+    "id": "core:item:player-mouth",
     "name": "Powerful mouth",
-    "desc": "It is a small piece of paper lying on the floor. There is some text on it.",
+    "desc": "It's your mouth!",
     "carry": {
     	"droppable": false,
-        "onPickupDesc": "You take the piece of paper. The text on it says: '45322,--> bleh bleh unf unf'. There is also a small drawing of a phallus.",
-        "carryDesc": "It's the piece of paper you picked up from your bedroom with the dumb meaningless text and penis drawing."
+        "carryDesc": "Your teeth glisten with barely controlled fury..."
     }
 }

@@ -27,7 +27,7 @@ function print(state, text) {
 }
 
 function firstVisitOnArea(area, state) {
-    const desc = areaDesc(state, area.firstDesc);
+    const desc = areaDesc(state, area, area.firstDesc);
     print(state, desc);
     return R.set(l.areas, R.set(R.lensProp(area.id), {}, state.areas), state);
 }
@@ -42,7 +42,7 @@ function enterArea(areaId, state) {
         if (!areas[currentArea.id]) {
             return firstVisitOnArea(currentArea, state);
         } else {
-            print(state, areaDesc(state, currentArea.desc));
+            print(state, areaDesc(state, currentArea, currentArea.desc));
         }
 
         return state;    
@@ -84,7 +84,7 @@ function handleCommandFromPlayer(state, inputCmd) {
 
     const command = Command.getCommand(state, currentArea, inputCmd);
     if (command) {
-        state = Command.useCommand(command, currentArea, state);
+        state = Command.registerCommandUsed(command, currentArea, state);
         const event = GEvent.getEvent(command.events, state);
         if (event) {
             const eventResult = handleEvent(event, state);
@@ -122,8 +122,10 @@ function makeState(old, inputCmd) {
 }
 
 function getSuggestions(state) {
+    const builtins = R.map((trigger) => ({ trigger }), ['examine', 'look at']);
+    const areaCmds = Command.getAvailableAreaCommands(state, state.currentArea);
     state.suggestions = {
-        areaCmds: Command.getAvailableCommands(state, state.currentArea)
+        builtins, areaCmds
     };
     return state;
 }

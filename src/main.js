@@ -30,15 +30,18 @@ const updateState = (initialState) => {
 
 const trigger = R.prop('trigger');
 
-function getMatchingCommands(cmds, inputCmd) {
+function getMatchingCommands({ builtins, areaCmds }, inputCmd) {
+    // debugger;
     if (!inputCmd || inputCmd.length < 2) {
         return [];
     }
 
     const testCmd = inputCmd.length === 2 ? inputCmd + ' ' : inputCmd;
     const matching = R.filter(({ trigger }) => trigger.indexOf(testCmd) === 0);
+    const matchingAreaCommands = R.map(trigger, matching(areaCmds));
+    const matchingSuggestions = R.map(trigger, matching(builtins))
 
-    return R.map(trigger, matching(cmds));
+    return matchingAreaCommands.concat(matchingSuggestions);
 }
 
 function initSuggestions(view, stateS) {
@@ -46,13 +49,13 @@ function initSuggestions(view, stateS) {
         .toProperty()
         .map((state) => state.game.initialized);
 
-    const areaCommands = stateS
+    const suggestionInfo = stateS
         .filter(gameInitialized)
-        .map((state) => state.suggestions.areaCmds)
+        .map((state) => state.suggestions)
         .toProperty();
 
     const validInputP = view.validInput.toProperty();
-    const matchingCommands = areaCommands
+    const matchingCommands = suggestionInfo
         .sampledBy(validInputP, getMatchingCommands);
 
     const suggestions = view.validInput.map(matchingCommands);

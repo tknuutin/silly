@@ -28,12 +28,14 @@ function getAndCache(ids) {
         });
 }
 
+const getRefs = R.map(R.prop('ref'));
+
 export function fetchAreaData(areaId) {
     return getAndCache([areaId]).then((data) => {
         const area = data[areaId];
         const refs = area.refs
-            .concat(area.items || [])
-            .concat(area.monsters || [])
+            .concat(getRefs(area.items || []))
+            .concat(getRefs(area.monsters || []));
         return getAndCache(refs).then(() => {
             return area;
         });
@@ -56,7 +58,7 @@ const STARTSTATE = {
         health: 100,
         items: [
             {
-                id: 'core:item:player-mouth',
+                ref: 'core:item:player-mouth',
                 equipped: true
             }
         ],

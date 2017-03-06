@@ -4,16 +4,18 @@ import { applyTemplate} from './template';
 import * as World from './world';
 import { isArray, isString, isObject, upper } from './utils'
 
-const getName = (id) => R.toUpper(World.get(id).name);
+const getName = ({ ref }) => R.toUpper(World.get(ref).name);
 const getNames = R.map(getName);
 const padEmpty = R.prepend('');
 const padIfItems = (arr) => arr.length > 0 ? padEmpty(arr) : [];
 
-const filterIds = (ids) =>
-    R.filter((objId) => R.any(R.pipe(R.equals(objId), R.not), ids));
+const filterIds = (ids) => {
+    const refDoesNotMatch = ({ ref }) => R.pipe(R.equals(ref), R.not);
+    return R.filter((objId) => R.any(refDoesNotMatch(objId), ids));
+}
 
-const getLines = (ids, objs) =>
-    R.pipe(filterIds(ids), getTextForGameObjects, padIfItems)(objs);
+const getLines = (idsToFilter, objs) =>
+    R.pipe(filterIds(idsToFilter), getTextForGameObjects, padIfItems)(objs);
 
 
 function getTextForGameObjects(items) {
@@ -28,23 +30,28 @@ function getTextForGameObjects(items) {
     const last = getName(R.last(items));
     const rest = getNames(R.init(items)).join(', ');
 
-    return `There is a ${rest} and a ${last} here.`;
+    return [`There is a ${rest} and a ${last} here.`];
 }
 
-function areaTransform(state, def) {
-    // This is like the best function ive written
+function getAreaEntitiesDescription(area, toFilter = []) {
+    const itemLines = getLines(toFilter, area.items || []);
+    const monsterLines = getLines(toFilter, area.monsters || []);
+    return itemLines.concat(monsterLines);
+}
+
+function areaComplexDescription(state, area, def) {
     const noDesc = def.noSeparateDesc || [];
     const text = getTextLines(def.text);
-    const area = state.currentArea;
 
-    const itemlines = getLines(noDesc, area.items || []);
-    const monsterLines = getLines(noDesc, area.monsters || []);
-
-    return text.concat(itemlines).concat(monsterLines);
+    return text.concat(getAreaEntitiesDescription(area, noDesc));
 }
 
-export const transforms = {
-    area: areaTransform
+function itemComplexDescription(state, item, def, equipped) {
+    throw new Error('Not implemented: Item had a complex description!');
+}
+
+function monsterComplexDescription(state, monster, def) {
+    throw new Error('Not implemented: Monster had a complex description!');
 }
 
 function getTextLines(def) {
@@ -59,24 +66,29 @@ function getTextLines(def) {
     }
 }
 
-export function get(state, def, transform = null) {
-    let textArr;
-    if (isObject(def)) {
-        if (!transform) {
-            throw new Error('Invalid description block: ' + trunc(def));
-        }
-        textArr = transform(state, def);
+function desc(state, def, simpleTransform, complexTransform) {
+    let lines;
+    if (!isArray(def) && isObject(def)) {
+        lines = complexTransform();
     } else {
-        textArr = getTextLines(def);    
+        lines = getTextLines(def).concat(simpleTransform());
     }
-    return applyTemplate(textArr, state);
+    return applyTemplate(lines, state);
 }
 
-export function areaDesc(state, desc) {
-    return get(state, desc, transforms.area);
+export function areaDesc(state, area, def) {
+    const getAreaEntities = () => getAreaEntitiesDescription(area);
+    const complexDesc = () => areaComplexDescription(state, area, def);
+    return desc(state, def, getAreaEntities, complexDesc);
 }
 
-export function itemDesc(state, desc, equipped = false) {
-    return get(state, desc, (def) => transform.item(state, def, equipped))
+export function itemDesc(state, item, def, equipped = false) {
+    return desc(state, def, () => {
+        return equipped ? ['You are currently wielding the item.'] : [];
+    }, (def) => itemComplexDescription(state, item, def, equipped))
+}
+
+export function monsterDesc(state, monster, def) {
+    return get(state, def, () => [], (def) => monsterComplexDescription(state, monster, def))
 }
 

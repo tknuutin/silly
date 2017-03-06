@@ -30,3 +30,7 @@ export const upper = R.map(R.toUpper);
 export function findByProp(prop, eq, list) {
 	return R.find((elem) => prop(elem) === eq, list);
 }
+
+export function findByName(eq, list) {
+    return R.find((elem) => elem.name.toUpperCase() === eq.toUpperCase(), list);
+}

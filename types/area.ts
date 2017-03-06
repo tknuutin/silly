@@ -2,6 +2,10 @@
 import { Description, VariableRef, ContentId } from './common';
 import { Command } from './command';
 
+interface ItemRef {
+	ref: ContentId;
+}
+
 export interface Area {
     refs: Array<ContentId>;
     id: ContentId;
@@ -10,6 +14,6 @@ export interface Area {
     desc: Description;
     firstDesc?: Description;
     commands: Array<Command>;
-    items?: Array<ContentId>
+    items?: Array<ItemRef>
 }
 
