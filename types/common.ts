@@ -11,6 +11,9 @@ export type TemplateText = string;
 // In the form: namespace:name, like global:has_opened_bedroom_door.
 export type VariableRef = string;
 
+// 'area', 'player', 'area:<monster or item id>'
+export type TargetRef = string;
+
 export type TemplateTextArray = Array<TemplateText>
 
 export interface DescriptionObject {

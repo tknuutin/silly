@@ -10,9 +10,10 @@ const padEmpty = R.prepend('');
 const padIfItems = (arr) => arr.length > 0 ? padEmpty(arr) : [];
 
 const filterIds = (ids) => {
-    const refDoesNotMatch = ({ ref }) => R.pipe(R.equals(ref), R.not);
-    return R.filter((objId) => R.any(refDoesNotMatch(objId), ids));
-}
+    return R.filter(({ ref }) => {
+        return !R.any((id) => id === ref, ids);
+    });
+};
 
 const getLines = (idsToFilter, objs) =>
     R.pipe(filterIds(idsToFilter), getTextForGameObjects, padIfItems)(objs);
@@ -66,12 +67,15 @@ function getTextLines(def) {
     }
 }
 
-function desc(state, def, simpleTransform, complexTransform) {
+export function generic(state, def, simpleTransform, complexTransform) {
     let lines;
     if (!isArray(def) && isObject(def)) {
+        if (!complexTransform) {
+            throw new Error('No complex transform given but complex description encountered!');
+        }
         lines = complexTransform();
     } else {
-        lines = getTextLines(def).concat(simpleTransform());
+        lines = getTextLines(def).concat(simpleTransform ? simpleTransform() : []);
     }
     return applyTemplate(lines, state);
 }
@@ -79,11 +83,11 @@ function desc(state, def, simpleTransform, complexTransform) {
 export function areaDesc(state, area, def) {
     const getAreaEntities = () => getAreaEntitiesDescription(area);
     const complexDesc = () => areaComplexDescription(state, area, def);
-    return desc(state, def, getAreaEntities, complexDesc);
+    return generic(state, def, getAreaEntities, complexDesc);
 }
 
 export function itemDesc(state, item, def, equipped = false) {
-    return desc(state, def, () => {
+    return generic(state, def, () => {
         return equipped ? ['You are currently wielding the item.'] : [];
     }, (def) => itemComplexDescription(state, item, def, equipped))
 }

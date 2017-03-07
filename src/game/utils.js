@@ -1,6 +1,10 @@
 
 import * as R from 'ramda';
 
+export function randomChoice(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
 export function isString(val) {
     return typeof val === 'string';
 }
@@ -23,6 +27,16 @@ export function trunc(str, limit = 50) {
         return str.slice(0, limit - 4) + '...';
     }
     return str;
+}
+
+export const removeOne = R.remove(R.__, 1);
+
+export function dropOne(pred, list) {
+    const index = R.findIndex(pred, list);
+    if (index < 0) {
+        throw new Error('Could not find element to drop!');
+    }
+    return removeOne(index, list);
 }
 
 export const upper = R.map(R.toUpper);

@@ -17,7 +17,7 @@ export function get(id) {
         throw new Error('Could not find resource: ' + id);
     }
 
-    return cache[id];
+    return R.clone(cache[id]);
 }
 
 function getAndCache(ids) {

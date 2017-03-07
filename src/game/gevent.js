@@ -1,7 +1,8 @@
 
 import * as Vars from './vars';
 import { applyTemplate } from './template';
-import { isArray } from './utils';
+import { isArray, dropOne } from './utils';
+import * as World from './world';
 import * as R from 'ramda';
 
 
@@ -28,14 +29,52 @@ export function getEvent(events, state) {
     return match;
 }
 
+function isItemReference(itemRef) {
+    return (item) => {
+        return item.id === itemRef.ref;
+    }
+}
+
+function areaHasItem(area, itemRef) {
+    // only compare the id for now
+    return !R.any(isItemReference(itemRef), area.items);
+}
+
+function resolveRemove({ target, item }) {
+    if (item) {
+        const itemDef = World.get(item.ref);
+        if (target === 'area') {
+            if (!areaHasItem(state.currentArea, itemRef)) {
+                throw new Error('Could not find item ' + item.ref + ' from area!');
+            }
+            state.currentArea.items = dropOne(isItemReference(item.ref), list);
+            state.player.items = state.player.items.concat([itemDef]);
+        }
+    }
+
+    return state;
+}
+
 export function execEvent(event, state) {
     if (event.desc) {
-        state.output.push(applyTemplate(event.desc, state));
+        state.output = state.output.concat(applyTemplate(event.desc, state));
     }
 
     if (event.set) {
         const [varId, value] = event.set;
         state = Vars.set(varId, value, state);
+    }
+
+    if (event.remove) {
+        state = resolveRemove(event.remove);
+    }
+
+    if (event.give) {
+        const { item } = event.give;
+        if (item) {
+            const itemDef = World.get(item.ref);
+            state.player.items = state.player.items.concat([itemDef]);
+        }
     }
 
     return state;

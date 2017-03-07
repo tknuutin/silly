@@ -1,9 +1,10 @@
 
 import * as R from 'ramda';
 import * as Logic from './logic';
-import { areaDesc, itemDesc, monsterDesc } from './desc';
+import * as Desc from './desc';
 import { findByName } from './utils';
 import * as World from './world';
+import * as Text from './text';
 
 function makeInBuiltCommand(name, event) {
     return {
@@ -17,7 +18,7 @@ const getRefs = (list) => R.map(R.pipe(R.prop('ref'), World.get), list || []);
 const currentAreaIsRoom = (area) => R.any(R.equals('room'), area.tags);
 const makeEvent = (desc) => ({ desc });
 
-const examine = (state, match, inputCmd) => {
+function examine(state, match, inputCmd) {
     const target = match[1];
     const area = state.currentArea;
     
@@ -27,7 +28,7 @@ const examine = (state, match, inputCmd) => {
 
     const targetIsRoom = target === 'room';
     if (targetIsRoom || target === 'area') {
-        const desc = areaDesc(state, area, area.desc);
+        const desc = Desc.areaDesc(state, area, area.desc);
         if (!targetIsRoom || currentAreaIsRoom(area)) {
             return desc;
         } else {
@@ -35,7 +36,6 @@ const examine = (state, match, inputCmd) => {
         }
     }
 
-    const pname = R.prop('name');
     const playerItemMatch = findByName(target, getRefs(state.player.items));
     if (playerItemMatch) {
         const { id, equipped } = playerItemMatch;
@@ -46,22 +46,83 @@ const examine = (state, match, inputCmd) => {
     const itemMatch = findByName(target, getRefs(state.currentArea.items));
     if (itemMatch) {
         const item = World.get(itemMatch.id);
-        return itemDesc(state, item, item.desc, false);
+        return Desc.itemDesc(state, item, item.desc, false);
     }
 
     const monsterMatch = findByName(target, getRefs(state.currentArea.monsters));
     if (monsterMatch) {
         const monster = World.get(monsterMatch.id);
-        return monsterDesc(state, monster, monster.desc, false);
+        return Desc.monsterDesc(state, monster, monster.desc, false);
     }
 
     return ["You don't see any of that around for your eager eyes to peep."];
 }
 
+function take(state, match, inputCmd) {
+    const target = match[1];
+    const area = state.currentArea;
+    
+    if (!target) {
+        return { desc: Text.takeEmpty() };
+    }
+
+    const areaItems = state.currentArea.items;
+    const itemMatch = findByName(target, getRefs(areaItems));
+    if (itemMatch) {
+        const item = World.get(itemMatch.id);
+        if (!item.carry) {
+            return { desc: ['You cannot carry that yet!'] };
+        }
+
+        const output = item.carry.onPickupDesc
+            ? Desc.generic(state, item.carry.onPickupDesc)
+            : [`You pick up the ${item.name.toUpperCase()}.`];
+
+        return {
+            give: {
+                item: {
+                    ref: itemMatch.id
+                }
+            },
+            removeFromArea: {
+                // silent: yes,
+                item: {
+                    ref: itemMatch.id
+                }
+            },
+            desc: output
+        };
+
+        // state.currentArea.items = R.filter(({ ref }) => itemMatch.id, areaItems);
+        // state.player.items = state.player.items.concat({ ref: itemMatch.id });
+        
+        // return { state, output };
+    }
+
+    const playerItemMatch = findByName(target, getRefs(state.player.items));
+    if (playerItemMatch) {
+        return { desc: ["You already have that, you horse's ass!"] };
+    }
+
+    const monsterMatch = findByName(target, getRefs(state.currentArea.monsters));
+    if (monsterMatch) {
+        return { desc: ["You cannot and/or won't put that in your pocket!!"] }
+    }
+
+    return { desc: Text.takeNonExisting() };
+}
+
 const inBuilt = [
     {
         re: /^examine(?: (.*))?$/,
-        createEvent: (state, match, inputCmd) => makeEvent(examine(state, match))
+        createEvent: (state, match, inputCmd) => ({ desc: examine(state, match)})
+    },
+    {
+        re: /^(?:take|grab)(?: (.*))?$/,
+        createEvent: (state, match, inputCmd) => {
+            const e = take(state, match);
+            return { _alreadyExecuted: true, state: state };
+        }
     }
 ]
 
