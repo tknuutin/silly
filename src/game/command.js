@@ -2,7 +2,7 @@
 import * as R from 'ramda';
 import * as Logic from './logic';
 import * as Desc from './desc';
-import { findByName } from './utils';
+import { findByName, isObject } from './utils';
 import * as World from './world';
 import * as Text from './text';
 
@@ -66,6 +66,11 @@ function take(state, match, inputCmd) {
         return { desc: Text.takeEmpty() };
     }
 
+    const playerItemMatch = findByName(target, getRefs(state.player.items));
+    if (playerItemMatch) {
+        return { desc: ["You already have that, you horse's ass!"] };
+    }
+
     const areaItems = state.currentArea.items;
     const itemMatch = findByName(target, getRefs(areaItems));
     if (itemMatch) {
@@ -74,7 +79,7 @@ function take(state, match, inputCmd) {
             return { desc: ['You cannot carry that yet!'] };
         }
 
-        const output = item.carry.onPickupDesc
+        const output = isObject(item.carry) && item.carry.onPickupDesc
             ? Desc.generic(state, item.carry.onPickupDesc)
             : [`You pick up the ${item.name.toUpperCase()}.`];
 
@@ -85,23 +90,12 @@ function take(state, match, inputCmd) {
                 }
             },
             removeFromArea: {
-                // silent: yes,
                 item: {
                     ref: itemMatch.id
                 }
             },
             desc: output
         };
-
-        // state.currentArea.items = R.filter(({ ref }) => itemMatch.id, areaItems);
-        // state.player.items = state.player.items.concat({ ref: itemMatch.id });
-        
-        // return { state, output };
-    }
-
-    const playerItemMatch = findByName(target, getRefs(state.player.items));
-    if (playerItemMatch) {
-        return { desc: ["You already have that, you horse's ass!"] };
     }
 
     const monsterMatch = findByName(target, getRefs(state.currentArea.monsters));
@@ -119,10 +113,7 @@ const inBuilt = [
     },
     {
         re: /^(?:take|grab)(?: (.*))?$/,
-        createEvent: (state, match, inputCmd) => {
-            const e = take(state, match);
-            return { _alreadyExecuted: true, state: state };
-        }
+        createEvent: take
     }
 ]
 

@@ -1,9 +1,10 @@
 
-import * as Vars from './vars';
 import { applyTemplate } from './template';
-import { isArray, dropOne } from './utils';
+import { isArray, isObject, dropOne, findObjOperation } from './utils';
+import * as Math from './math';
 import * as World from './world';
 import * as R from 'ramda';
+import * as Vars from './vars';
 
 
 export function getEvent(events, state) {
@@ -55,14 +56,38 @@ function resolveRemove({ target, item }) {
     return state;
 }
 
+const OPS = {
+    set: Vars.set,
+    add: Vars.add,
+    sub: Vars.sub,
+    div: Vars.div,
+    mul: Vars.mul
+};
+
+function resolveEventMath(state, mathDef) {
+    const { opname, func } = findObjOperation(OPS, mathDef);
+    if (!func) {
+        return state;
+    }
+
+    const varId = expr[opname][0];
+    const value = expr[opname][1];
+
+    return func(varId, value, state);
+}
+
 export function execEvent(event, state) {
+    // debugger;
     if (event.desc) {
         state.output = state.output.concat(applyTemplate(event.desc, state));
     }
 
-    if (event.set) {
-        const [varId, value] = event.set;
-        state = Vars.set(varId, value, state);
+    state = resolveEventMath(state, event);
+
+    if (event.math) {
+        state = R.reduce((state, eventMathOp) => {
+            return resolveEventMath(state, eventMathOp);
+        }, state, event.math);
     }
 
     if (event.remove) {

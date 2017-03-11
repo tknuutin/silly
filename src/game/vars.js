@@ -1,4 +1,5 @@
 
+import { isObject } from './utils';
 import * as R from 'ramda';
 
 export function parse(varId) {

@@ -27,7 +27,7 @@
             "events": [
                 {
                     "desc": "You open the door. The smell from the kitchen hits you in the face.",
-                    "set": ["global:has_opened_bedroom_door", 1]
+                    "math": [{"set": ["global:has_opened_bedroom_door", 1]}]
                 }
             ]
         },

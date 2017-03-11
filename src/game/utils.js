@@ -48,3 +48,18 @@ export function findByProp(prop, eq, list) {
 export function findByName(eq, list) {
     return R.find((elem) => elem.name.toUpperCase() === eq.toUpperCase(), list);
 }
+
+export function findObjOperation(ops, expr) {
+    const result = R.find(([opname, exec]) => {
+        return expr[opname];
+    }, R.toPairs(ops));
+
+    if (!result) {
+        return {};
+    }
+
+    const opname = result[0];
+    const func = result[1];
+    return { opname, func };
+}
+
