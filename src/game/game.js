@@ -123,7 +123,11 @@ function makeState(old, inputCmd) {
 
 function getSuggestions(state) {
     const builtins = R.map((trigger) => ({ trigger }), ['examine', 'look at']);
-    const areaCmds = Command.getAvailableAreaCommands(state, state.currentArea);
+    const areaCmds = R.filter(
+        (command) => Command.isCommandVisible(state, command),
+        Command.getAvailableAreaCommands(state, state.currentArea)
+    );
+
     state.suggestions = {
         builtins, areaCmds
     };

@@ -5,12 +5,15 @@ import * as Math from './math';
 import * as World from './world';
 import * as R from 'ramda';
 import * as Vars from './vars';
+import * as Logic from './logic';
 
 
 export function getEvent(events, state) {
     if (!isArray(events)) {
         events = [events];
     }
+
+    // debugger;
 
     const defEvent = R.last(events);
 
@@ -19,7 +22,7 @@ export function getEvent(events, state) {
             throw new Error('Invalid event definition');
         }
 
-        return Logic.isTrue(predicate, state);
+        return Logic.isTrue(state, predicate);
     });
 
     const match = firstMatchingOutcome(R.init(events));
@@ -27,7 +30,7 @@ export function getEvent(events, state) {
         return isArray(defEvent) ? R.last(defEvent) : defEvent;
     }
 
-    return match;
+    return R.last(match);
 }
 
 function isItemReference(itemRef) {
@@ -70,8 +73,8 @@ function resolveEventMath(state, mathDef) {
         return state;
     }
 
-    const varId = expr[opname][0];
-    const value = expr[opname][1];
+    const varId = mathDef[opname][0];
+    const value = mathDef[opname][1];
 
     return func(varId, value, state);
 }

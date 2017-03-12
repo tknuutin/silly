@@ -24,20 +24,38 @@
         {
             "trigger": "open door",
             "usable": 1,
-            "events": [
-                {
-                    "desc": "You open the door. The smell from the kitchen hits you in the face.",
-                    "math": [{"set": ["global:has_opened_bedroom_door", 1]}]
-                }
-            ]
+            "events": {
+                "desc": "You open the door. The smell from the kitchen hits you in the face.",
+                "math": [{"set": ["global:has_opened_bedroom_door", 1]}]
+            },
+            "visible": {
+                "gt": ["global:has_tried_to_open_bedroom_door", 0]
+            }
         },
         {
             "trigger": "go to kitchen",
-            "available": { "exists": ["global:has_opened_bedroom_door"]},
-            "events": [{
-                "desc": "",
-                "move": "core:area:kitchen"
-            }]
+            "events": [
+                [
+                    {
+                        "or": [
+                            {"lt": ["global:has_opened_bedroom_door", 1]},
+                            {
+                                "not": {
+                                    "exists": "global:has_opened_bedroom_door"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "desc": "The door is still closed!",
+                        "set": ["global:has_tried_to_open_bedroom_door", 1]
+                    }
+                ],
+                [null,{
+                    "desc": "With the way to the fertile lands of the kitchen now open, you step through the passage.",
+                    "move": "core:area:kitchen"
+                }]
+            ]
         }
     ],
     "items": [
