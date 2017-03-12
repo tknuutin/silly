@@ -3,9 +3,6 @@ import { VariableRef } from './common';
 
 export type GNumber = number | VariableRef;
 
-// export type Operation = 'add' | 'div' | 'mul';
-// export type Math = [Operation, GNumber | Math, GNumber | Math];
-
 export interface AddOp {
     add: [GNumber | Math, GNumber | Math];
 }

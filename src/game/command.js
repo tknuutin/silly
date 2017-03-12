@@ -122,7 +122,6 @@ function isCommandAvailable(command, currentArea, state) {
     const usedCmds = areaInfo.cmds || {};
     const { trigger, available, usable, invisible } = command;
     const history = usedCmds[trigger];
-    console.log('cmd', trigger);
     
     return (
         (!history || usable === undefined || usable > history.used) &&
@@ -131,10 +130,6 @@ function isCommandAvailable(command, currentArea, state) {
 }
 
 export function isCommandVisible(state, command) {
-    console.log(command.trigger, Logic.isTrue(state, command.visible));
-    // if (command.trigger.indexOf('open door') > -1) {
-    //     debugger;
-    // }
     return Logic.isTrue(state, command.visible);
 }
 

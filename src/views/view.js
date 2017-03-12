@@ -99,6 +99,7 @@ export function createView() {
         setValue,
         print, showSuggestions,
         onCommand, tabs,
+        showError,
         invalidInput: input,
         validInput: validInput,
         commands: validCommands.delay(500),
