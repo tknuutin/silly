@@ -105,6 +105,18 @@ export function execEvent(event, state) {
         }
     }
 
+    if (event.spawn) {
+        const area = state.currentArea;
+        const { spawn } = event.spawn;
+        if (spawn) {
+            const { item, monster } = spawn;
+            if (item) {
+                const itemDef = World.get(item.ref);
+                
+            }
+        }
+    }
+
     return state;
 }
 

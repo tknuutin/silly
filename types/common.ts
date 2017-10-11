@@ -24,7 +24,7 @@ export interface DescriptionObject {
     // items in the area. You can all the game entities like items or
     // monsters you don't want to be listed, maybe to list them more
     // descriptively in the text property.
-    noSeparateDesc: Array<ContentId>;
+    noSeparateDesc?: Array<ContentId>;
 }
 
 export type Description = TemplateText | TemplateTextArray | DescriptionObject;

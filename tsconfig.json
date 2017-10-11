@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "allowUnreachableCode": false,
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "removeComments": false,
+    "noUnusedLocals": true,
+    "noImplicitThis": true,
+    "noImplicitUseStrict": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "target": "es3",
+    "typeRoots": [ "node_modules/@types" ]
+  },
+  "exclude": [
+    "node_modules",
+    "build",
+    "src",
+    "server"
+  ]
+}

@@ -1,23 +1,43 @@
 
 import { Description, VariableRef, ContentId, TargetRef } from './common';
-import { GNumber, Math } from './math';
+import { GNumber, MathOp } from './math';
 
-type EventMathOperation = [VariableRef, GNumber | Math];
+type EventMathOperation = [VariableRef, GNumber | MathOp];
 interface MathOperationOwner {
     // Set a variable to something that resolves to a number.
-    set?: [VariableRef, GNumber | Math];
+    set?: [VariableRef, GNumber | MathOp];
 
     // Add something that resolves to a number to a variable.
-    add?: [VariableRef, GNumber | Math];
+    add?: [VariableRef, GNumber | MathOp];
 
     // Subtract something that resolves to a number frmo a variable.
-    sub?: [VariableRef, GNumber | Math];
+    sub?: [VariableRef, GNumber | MathOp];
 
     // Divide a variable with something that resolves a number.
-    div?: [VariableRef, GNumber | Math];
+    div?: [VariableRef, GNumber | MathOp];
 
     // Multiply a variable with something that resolves a number.
-    mul?: [VariableRef, GNumber | Math];
+    mul?: [VariableRef, GNumber | MathOp];
+}
+
+interface ItemRef {
+    ref: ContentId;
+}
+
+interface MonsterRef {
+    ref: ContentId;
+}
+
+interface SpawnEvent {
+    item?: ItemRef;
+    monster?: MonsterRef;
+}
+
+interface RemoveEvent {
+    target: TargetRef;
+    item?: {
+        ref: ContentId
+    };
 }
 
 export interface Event extends MathOperationOwner {
@@ -30,17 +50,13 @@ export interface Event extends MathOperationOwner {
     math?: Array<MathOperationOwner>;
 
     // Give an item or other thingy to the player
-    give?: {
-        item?: {
-            ref: ContentId;
-        };
-    };
+    give?: ItemRef | Array<ItemRef>;
+
+    // Spawn an item or monster in the current area
+    spawn?: SpawnEvent | Array<SpawnEvent>;
 
     // Remove something from the target.
-    remove?: {
-        target: TargetRef;
-        item?: {
-            ref: ContentId
-        };
-    };
+    remove?: RemoveEvent | Array<RemoveEvent>;
+
+    move?: ContentId;
 }

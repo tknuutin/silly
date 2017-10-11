@@ -23,11 +23,13 @@
     "gulp-sourcemaps": "^1.5.2",
     "gulp-uglify": "^1.5.3",
     "gulp-util": "^3.0.5",
+    "typescript": "^2.3.2",
     "uglifyify": "^3.0.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
+    "@types/node": "^7.0.18",
     "bacon.jquery": "^0.4.12",
     "bacon.model": "^0.1.12",
     "baconjs": "^0.7.89",

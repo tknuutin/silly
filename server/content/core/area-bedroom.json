@@ -33,6 +33,20 @@
             }
         },
         {
+            "trigger": "spawn monster",
+            "usable": 1,
+            "events": {
+                "spawn": {
+                    "monster": {
+                        "ref": "none"
+                    }
+                }
+            },
+            "visible": {
+                "gt": ["global:has_tried_to_open_bedroom_door", 0]
+            }
+        },
+        {
             "trigger": "go to kitchen",
             "events": [
                 [

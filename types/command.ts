@@ -2,7 +2,7 @@
 import { LogicAtom, Combinator } from './logic';
 import { Event } from './event';
 
-type Condition = LogicAtom | Combinator;
+export type Condition = LogicAtom | Combinator;
 
 export interface Command {
 	// Input trigger for the command.

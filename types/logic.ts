@@ -55,5 +55,6 @@ export type Combinator =
     OrCombinator |
     AllCombinator |
     AnyCombinator |
-    NoneCombinator;
+    NoneCombinator |
+    NotCombinator;
 

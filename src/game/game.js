@@ -7,6 +7,7 @@ import * as Text from './text';
 import * as Logic from './logic';
 import * as GEvent from './gevent'
 import * as Command from './command';
+// import * as Monster from './monster';
 import { areaDesc } from './desc';
 import { isString, isArray, trunc } from './utils';
 
@@ -50,8 +51,11 @@ function enterArea(areaId, state) {
 };
 
 function moveTime(time, state) {
+    const moveAmount = time || 5;
+    // to implement heh
+    // const [interrupts, deferred] = Monster.moveTime(state, moveAmount);
+
     state.time += time || 5;
-    // Add stuff here later like monster attacks, grapples or something
     return { state, interrupts: [], deferred: [] };
 }
 

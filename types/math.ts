@@ -4,20 +4,20 @@ import { VariableRef } from './common';
 export type GNumber = number | VariableRef;
 
 export interface AddOp {
-    add: [GNumber | Math, GNumber | Math];
+    add: [GNumber | MathOp, GNumber | MathOp];
 }
 
 export interface SubtractOp {
-    sub: [GNumber | Math, GNumber | Math];
+    sub: [GNumber | MathOp, GNumber | MathOp];
 }
 
 export interface DivideOp {
-    div: [GNumber | Math, GNumber | Math];
+    div: [GNumber | MathOp, GNumber | MathOp];
 }
 
 export interface MultiplyOp {
-    mul: [GNumber | Math, GNumber | Math];
+    mul: [GNumber | MathOp, GNumber | MathOp];
 }
 
-export type Math = AddOp | SubtractOp | DivideOp | MultiplyOp;
+export type MathOp = AddOp | SubtractOp | DivideOp | MultiplyOp;
 
