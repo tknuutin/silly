@@ -14,7 +14,7 @@ function paramWithName(paramName){
 
 function loadConfig(){
     return {
-        port: process.env.PORT || paramWithName("port") || 3000
+        port: process.env.PORT || paramWithName("port") || 3002
     }
 }
 

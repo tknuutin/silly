@@ -1,21 +1,40 @@
 {
   "compilerOptions": {
-    "allowUnreachableCode": false,
+    "outDir": "build/dist",
     "module": "commonjs",
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "removeComments": false,
-    "noUnusedLocals": true,
-    "noImplicitThis": true,
-    "noImplicitUseStrict": true,
-    "suppressImplicitAnyIndexErrors": true,
     "target": "es3",
-    "typeRoots": [ "node_modules/@types" ]
+    "lib": ["es6", "dom"],
+    "sourceMap": false,
+    "allowJs": false,
+    "moduleResolution": "node",
+    "rootDir": "src",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": false,
+    "removeComments": false,
+    "traceResolution": true
   },
   "exclude": [
-    "node_modules",
+    ".sign",
+    "bin",
     "build",
-    "src",
-    "server"
+    "config",
+    "deployment",
+    "docs",
+    "jenkins",
+    "docs",
+    "keys",
+    "node_modules",
+    "public",
+    "scripts",
+    "webpack",
+    "old"
+  ],
+  "types": [
+    "typePatches"
   ]
 }

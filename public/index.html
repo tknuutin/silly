@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#000000">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Jura" rel="stylesheet">
+    <title>SILLY GAME</title>
+  </head>
+  <body>
+    <div id="root">
+      <div id='container'>
+        <div id='screen'></div>
+          <div id='fakeinput'>
+              <span class="txtinput">> </span><span class="txtinput" id='fakeinputtext'></span>
+              <div id="caretcont">
+                  <div id='caret' class="blink"></div>    
+              </div>
+          </div>
+          <div id='suggestions'></div>
+      </div>
+      <input id='command' type='text'></input>
+      <div class='errors empty-errors' id='errors'>
+          <p>Some sort of error happened!</p>
+      </div>
+    </div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>
