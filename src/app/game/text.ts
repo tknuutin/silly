@@ -22,7 +22,7 @@ export function nameAsk() {
     ];
 }
 
-export function namePrint(state) {
+export function namePrint(state: any) {
     const insult = randomChoice(NAME_INSULTS);
     return [`Your name is ${state.player.name}. ${insult}`];
 }

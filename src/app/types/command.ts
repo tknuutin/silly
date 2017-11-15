@@ -5,7 +5,7 @@ import { Event } from './event';
 export type Condition = LogicAtom | Combinator;
 
 export interface Command {
-	// Input trigger for the command.
+    // Input trigger for the command.
     trigger: string;
     alias?: Array<string>;
     invisibleAlias?: Array<string>;

@@ -2,7 +2,7 @@
 import * as R from 'ramda';
 import { ensureArray } from './utils';
 
-function getValueFromState(pathStr, state, rules) {
+function getValueFromState(pathStr: string, state: any, rules: any): number {
     const path = pathStr.split('.');
 
     if (R.path(path, rules.objectAccess)) {
@@ -17,7 +17,7 @@ function getValueFromState(pathStr, state, rules) {
     throw new Error('Invalid template path: ' + pathStr);
 }
 
-function replaceWithRules(str, state, rules) {
+function replaceWithRules(str: string, state: any, rules: any): string {
     // This whole function is a bit dump
     const open = '{';
     const close = '}';
@@ -60,7 +60,7 @@ function replaceWithRules(str, state, rules) {
                 replacing = false;
             }
         }
-    };
+    }
 
     final += str.slice(lastReplaceEnd, len);
     return final;
@@ -82,18 +82,18 @@ const rules = {
         },
     },
     special: {
-        currentArea: (state) => {
+        currentArea: (state: any) => {
             return state.currentArea.name;
         }
     }
-}
+};
 
-function applyTemplateToLine(str, state) {
+function applyTemplateToLine(str: string, state: any) {
     return replaceWithRules(str, state, rules);
 }
 
-export const applyTemplate = (lines, state) =>
-    R.map((line) => applyTemplateToLine(line, state), ensureArray(lines))
+export const applyTemplate = (lines: string[], state: any) =>
+    R.map((line: string) => applyTemplateToLine(line, state), ensureArray(lines));
 
 
 

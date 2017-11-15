@@ -7,13 +7,23 @@ import * as R from 'ramda';
 import * as Vars from './vars';
 import * as Logic from './logic';
 
+import { State } from './state';
+import { Event } from '../types/event';
+import { LogicAtom, Combinator } from '../types/logic';
 
-export function getEvent(events, state) {
-    if (!isArray(events)) {
-        events = [events];
+type Condition = LogicAtom | Combinator;
+type EventPair = [Condition, Event];
+type EventArg = Event | Array<EventPair>;
+
+export function getEvent(eventArg: EventArg, state: any): any {
+    let events: Array<EventPair>;
+
+    if  (!isArray(eventArg)) {
+        const cond: Condition = { value: true };
+        events = [[cond, eventArg]];
+    } else {
+        events = eventArg;
     }
-
-    // debugger;
 
     const defEvent = R.last(events);
 
@@ -33,25 +43,25 @@ export function getEvent(events, state) {
     return R.last(match);
 }
 
-function isItemReference(itemRef) {
-    return (item) => {
+function isItemReference(itemRef: any) {
+    return (item: any) => {
         return item.id === itemRef.ref;
-    }
+    };
 }
 
-function areaHasItem(area, itemRef) {
+function areaHasItem(area: any, itemRef: any) {
     // only compare the id for now
     return !R.any(isItemReference(itemRef), area.items);
 }
 
-function resolveRemove({ target, item }) {
+function resolveRemove({ target, item }: any, state: any): any {
     if (item) {
         const itemDef = World.get(item.ref);
         if (target === 'area') {
-            if (!areaHasItem(state.currentArea, itemRef)) {
+            if (!areaHasItem(state.currentArea, itemDef)) {
                 throw new Error('Could not find item ' + item.ref + ' from area!');
             }
-            state.currentArea.items = dropOne(isItemReference(item.ref), list);
+            state.currentArea.items = dropOne(isItemReference(item.ref), state.currentArea.items);
             state.player.items = state.player.items.concat([itemDef]);
         }
     }
@@ -67,9 +77,9 @@ const OPS = {
     mul: Vars.mul
 };
 
-function resolveEventMath(state, mathDef) {
+function resolveEventMath(state: State, mathDef: any) {
     const { opname, func } = findObjOperation(OPS, mathDef);
-    if (!func) {
+    if (!func || !opname) {
         return state;
     }
 
@@ -79,7 +89,7 @@ function resolveEventMath(state, mathDef) {
     return func(varId, value, state);
 }
 
-export function execEvent(event, state) {
+export function execEvent(event: any, state: any): any {
     // debugger;
     if (event.desc) {
         state.output = state.output.concat(applyTemplate(event.desc, state));
@@ -94,7 +104,7 @@ export function execEvent(event, state) {
     }
 
     if (event.remove) {
-        state = resolveRemove(event.remove);
+        state = resolveRemove(state, event.remove);
     }
 
     if (event.give) {

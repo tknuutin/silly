@@ -6,7 +6,6 @@ type Asd = number | boolean;
 
 interface ItemRef {
     ref: ContentId;
-    asd?: Asd
 }
 
 export interface Area {

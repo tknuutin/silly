@@ -6,19 +6,31 @@ import { findByName, isObject } from './utils';
 import * as World from './world';
 import * as Text from './text';
 
-function makeInBuiltCommand(name, event) {
+import { Description } from '../types/common';
+import { Command } from '../types/command';
+import { State } from './state';
+import { Area } from '../types/area';
+
+export interface InternalCommand extends Command {
+    _global?: boolean;
+}
+
+type MaybeCommand = InternalCommand | undefined;
+
+function makeInBuiltCommand(name: any, event: any) {
     return {
         trigger: name,
         inbuilt: true,
         events: event
-    }
+    };
 }
 
-const getRefs = (list) => R.map(R.pipe(R.prop('ref'), World.get), list || []);
-const currentAreaIsRoom = (area) => R.any(R.equals('room'), area.tags);
-const makeEvent = (desc) => ({ desc });
+const getRefs = (list: any[] | undefined) =>
+    R.map(R.pipe(R.prop('ref'), World.get), list || []);
+const currentAreaIsRoom = (area: any) => R.any(R.equals('room'), area.tags);
+const makeEvent = (desc: any) => ({ desc });
 
-function examine(state, match, inputCmd) {
+function examine(state: State, match: any, inputCmd: string): Description {
     const target = match[1];
     const area = state.currentArea;
     
@@ -40,7 +52,7 @@ function examine(state, match, inputCmd) {
     if (playerItemMatch) {
         const { id, equipped } = playerItemMatch;
         const item = World.get(id);
-        return itemDesc(state, item, item.desc, equipped);
+        return Desc.itemDesc(state, item, item.desc, equipped);
     }
 
     const itemMatch = findByName(target, getRefs(state.currentArea.items));
@@ -52,13 +64,13 @@ function examine(state, match, inputCmd) {
     const monsterMatch = findByName(target, getRefs(state.currentArea.monsters));
     if (monsterMatch) {
         const monster = World.get(monsterMatch.id);
-        return Desc.monsterDesc(state, monster, monster.desc, false);
+        return Desc.monsterDesc(state, monster, monster.desc);
     }
 
     return ["You don't see any of that around for your eager eyes to peep."];
 }
 
-function take(state, match, inputCmd) {
+function take(state: any, match: any, inputCmd: string): any {
     const target = match[1];
     const area = state.currentArea;
     
@@ -100,7 +112,7 @@ function take(state, match, inputCmd) {
 
     const monsterMatch = findByName(target, getRefs(state.currentArea.monsters));
     if (monsterMatch) {
-        return { desc: ["You cannot and/or won't put that in your pocket!!"] }
+        return { desc: ["You cannot and/or won't put that in your pocket!!"] };
     }
 
     return { desc: Text.takeNonExisting() };
@@ -109,15 +121,16 @@ function take(state, match, inputCmd) {
 const inBuilt = [
     {
         re: /^examine(?: (.*))?$/,
-        createEvent: (state, match, inputCmd) => ({ desc: examine(state, match)})
+        createEvent: (state: any, match: any, inputCmd: any): any =>
+            ({ desc: examine(state, match, inputCmd)})
     },
     {
         re: /^(?:take|grab)(?: (.*))?$/,
         createEvent: take
     }
-]
+];
 
-function isCommandAvailable(command, currentArea, state) {
+function isCommandAvailable(command: any, currentArea: any, state: State): boolean {
     const areaInfo = state.areas[currentArea.id] || {};
     const usedCmds = areaInfo.cmds || {};
     const { trigger, available, usable, invisible } = command;
@@ -129,18 +142,18 @@ function isCommandAvailable(command, currentArea, state) {
     );
 }
 
-export function isCommandVisible(state, command) {
+export function isCommandVisible(state: any, command: any) {
     return Logic.isTrue(state, command.visible);
 }
 
-export function getAvailableAreaCommands(state, area) {
+export function getAvailableAreaCommands(state: State, area: any): InternalCommand[] {
     return R.filter(
         (command) => isCommandAvailable(command, area, state),
         area.commands
     );
 }
 
-function getInBuiltCommand(state, inputCmd) {
+function getInBuiltCommand(state: any, inputCmd: any): MaybeCommand {
     // debugger;
     const inputChecked = R.map(({ createEvent, re }) =>
         ({ createEvent, match: re.exec(inputCmd) }), inBuilt);
@@ -148,30 +161,32 @@ function getInBuiltCommand(state, inputCmd) {
     const matchedInBuilt = R.find(({ match }) => !!match, inputChecked);
     if (matchedInBuilt) {
         const evt = matchedInBuilt.createEvent(state, matchedInBuilt.match, inputCmd);
-        return { global: true, events: [evt] };
+        return { _global: true, events: [evt], trigger: "" };
     }
-    return null;
+    return undefined;
 }
 
-function commandTriggerMatches(cmd, inputCmd) {
+function commandTriggerMatches(cmd: any, inputCmd: string): boolean {
     const triggers = [cmd.trigger].concat(cmd.alias || []).concat(cmd.invisibleAlias);
     return R.any(R.equals(inputCmd), triggers);
 }
 
-function getAreaCommand(state, area, inputCmd) {
+function getAreaCommand(state: State, area: any, inputCmd: string): MaybeCommand {
     const availables = getAvailableAreaCommands(state, area);
     return R.find((cmd) => commandTriggerMatches(cmd, inputCmd), availables);
 }
 
-export function getCommand(state, area, inputCmd) {
+export function getCommand(state: State, area: any, inputCmd: string): MaybeCommand {
     return (
         getAreaCommand(state, area, inputCmd) ||
         getInBuiltCommand(state, inputCmd)
     );
 }
 
-export function registerCommandUsed(command, currentArea, state) {
-    if (command.global) {
+const lAreas = R.lensProp('areas');
+
+export function registerCommandUsed(command: InternalCommand, currentArea: Area, state: State) {
+    if (command._global) {
         return state;
     }
 
@@ -192,9 +207,7 @@ export function registerCommandUsed(command, currentArea, state) {
     const used = area.cmds[command.trigger].used || 0;
     area.cmds[command.trigger].used = used + 1;
 
-    return R.set(
-        R.lensProp('areas'),
-        R.set(R.lensProp(currentArea.id), area, areas),
-        state
-    );
+    const lCurrentArea = R.compose(lAreas, R.lensProp(currentArea.id)) as RamdaDefs.Lens;
+
+    return R.set(lCurrentArea, area, state);
 }

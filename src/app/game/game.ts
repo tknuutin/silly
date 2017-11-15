@@ -5,7 +5,7 @@ import { applyTemplate } from './template';
 import { get, fetchAreaData } from './world';
 import * as Text from './text';
 import * as Logic from './logic';
-import * as GEvent from './gevent'
+import * as GEvent from './gevent';
 import * as Command from './command';
 // import * as Monster from './monster';
 import { areaDesc } from './desc';
@@ -18,22 +18,22 @@ const l = {
 };
 const pr = {
     cancel: R.prop('cancel')
-}
+};
 
 
-function print(state, text) {
+function print(state: any, text: any) {
     text = isArray(text) ? text : [text];
     R.forEach((l) => state.output.push(l), text);
     return state;
 }
 
-function firstVisitOnArea(area, state) {
+function firstVisitOnArea(area: any, state: any) {
     const desc = areaDesc(state, area, area.firstDesc);
     print(state, desc);
     return R.set(l.areas, R.set(R.lensProp(area.id), {}, state.areas), state);
 }
 
-function enterArea(areaId, state) {
+function enterArea(areaId: string, state: any) {
     return fetchAreaData(areaId).then(() => {
         state.lastArea = state.currentArea.id;
         state.currentArea = get(areaId);
@@ -48,9 +48,9 @@ function enterArea(areaId, state) {
 
         return state;    
     });
-};
+}
 
-function moveTime(time, state) {
+function moveTime(time: number, state: any): { state: any, interrupts: any[], deferred: any[] } {
     const moveAmount = time || 5;
     // to implement heh
     // const [interrupts, deferred] = Monster.moveTime(state, moveAmount);
@@ -59,11 +59,11 @@ function moveTime(time, state) {
     return { state, interrupts: [], deferred: [] };
 }
 
-function handleEvent(event, state) {
+function handleEvent(event: any, state: any) {
     const timeMoveResult = moveTime(event.time, state);
     state = timeMoveResult.state;
     const { interrupts, deferred } = timeMoveResult;
-    const shouldCancel = R.any(R.identity, R.map((i) => i.cancel, interrupts));
+    const shouldCancel = R.any((x: any) => !!x, R.map((i) => i.cancel, interrupts));
 
     const applyEvents = R.reduce((state, evt) => GEvent.execEvent(evt, state));
 
@@ -83,7 +83,7 @@ function handleEvent(event, state) {
     return { state, move: null };
 }
 
-function handleCommandFromPlayer(state, inputCmd) {
+function handleCommandFromPlayer(state: any, inputCmd: string) {
     const { currentArea, lastArea, areas } = state;
 
     const command = Command.getCommand(state, currentArea, inputCmd);
@@ -100,15 +100,14 @@ function handleCommandFromPlayer(state, inputCmd) {
             throw new Error('No event found for command!');
         }
     } else {
-        state = print(state, Text.unknownCommand())
+        state = print(state, Text.unknownCommand());
     }
 
     return Promise.resolve(state);
 }
 
-function makeState(old, inputCmd) {
-    // I'm not too sure about this but eh whatever unless the
-    // perf becomes a problem...????
+function makeState(old: any, inputCmd: string) {
+    // I'm not too sure about what this is supposed to do anymore
     return {
         game: R.clone(old.game),
         player: R.clone(old.player),
@@ -125,7 +124,7 @@ function makeState(old, inputCmd) {
     };
 }
 
-function getSuggestions(state) {
+function getSuggestions(state: any) {
     const builtins = R.map((trigger) => ({ trigger }), ['examine', 'look at']);
     const areaCmds = R.filter(
         (command) => Command.isCommandVisible(state, command),
@@ -138,8 +137,8 @@ function getSuggestions(state) {
     return state;
 }
 
-export function nextState(oldState, inputCmd = '') {
-    let state = makeState(oldState, inputCmd);
+export function nextState(oldState: any, inputCmd: string = '') {
+    const state = makeState(oldState, inputCmd);
 
     if (!state.game.askedName) {
         state.game.askedName = true;

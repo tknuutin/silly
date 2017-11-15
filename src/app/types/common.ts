@@ -14,7 +14,7 @@ export type VariableRef = string;
 // 'area', 'player', 'area:<monster or item id>'
 export type TargetRef = string;
 
-export type TemplateTextArray = Array<TemplateText>
+export type TemplateTextArray = Array<TemplateText>;
 
 export interface DescriptionObject {
     text: TemplateTextArray;

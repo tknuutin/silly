@@ -6,13 +6,13 @@ import { isString } from './utils';
 
 let cache = {};
 
-function saveToCache(ids) {
+function saveToCache(ids: any) {
     cache = R.merge(cache, ids);
 }
 
-window._worldToJson = () => JSON.stringify(cache);
+(window as any)._worldToJson = () => JSON.stringify(cache);
 
-export function get(id) {
+export function get(id: string) {
     if (!cache[id]) {
         throw new Error('Could not find resource: ' + id);
     }
@@ -20,7 +20,7 @@ export function get(id) {
     return R.clone(cache[id]);
 }
 
-function getAndCache(ids) {
+function getAndCache(ids: string[]) {
     return getByIds(ids)
         .then((data) => {
             saveToCache(data);
@@ -30,7 +30,7 @@ function getAndCache(ids) {
 
 const getRefs = R.map(R.prop('ref'));
 
-export function fetchAreaData(areaId) {
+export function fetchAreaData(areaId: string) {
     return getAndCache([areaId]).then((data) => {
         const area = data[areaId];
         const refs = area.refs
@@ -75,15 +75,15 @@ const STARTSTATE = {
     currentArea: null, // set later
     areas: {},
     output: ['Starting game!']
-}
+};
 
 const DEBUGSTATE = null;
 const DEBUGWORLD = null;
 
 export function getStartState() {
     const startAreaId = 'core:area:bedroom';
-    return fetchAreaData([startAreaId])
-        .then((area) => {
+    return fetchAreaData(startAreaId)
+        .then((area: any) => {
             const state = R.clone(DEBUGSTATE || STARTSTATE);
             state.currentArea = area;
             // debugger;

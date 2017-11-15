@@ -1,25 +1,30 @@
 
 import * as R from 'ramda';
-import { applyTemplate} from './template';
+import { applyTemplate } from './template';
 import * as World from './world';
-import { isArray, isString, isObject, upper } from './utils'
+import { isArray, isString, isObject, upper } from './utils';
 
-const getName = ({ ref }) => R.toUpper(World.get(ref).name);
+import { Description } from '../types/common';
+import { State } from './state';
+
+const getName = ({ ref }: any) => R.toUpper(World.get(ref).name);
 const getNames = R.map(getName);
 const padEmpty = R.prepend('');
-const padIfItems = (arr) => arr.length > 0 ? padEmpty(arr) : [];
+function padIfItems(arr: string[]): string[] {
+    return arr.length > 0 ? padEmpty(arr) : [];
+}
 
-const filterIds = (ids) => {
+const filterIds = (ids: any[]) => {
     return R.filter(({ ref }) => {
         return !R.any((id) => id === ref, ids);
     });
 };
 
-const getLines = (idsToFilter, objs) =>
+const getLines = (idsToFilter: any, objs: any) =>
     R.pipe(filterIds(idsToFilter), getTextForGameObjects, padIfItems)(objs);
 
 
-function getTextForGameObjects(items) {
+function getTextForGameObjects(items: any) {
     if (!items || items.length < 1 ) {
         return [];
     }
@@ -34,40 +39,40 @@ function getTextForGameObjects(items) {
     return [`There is a ${rest} and a ${last} here.`];
 }
 
-function getAreaEntitiesDescription(area, toFilter = []) {
+function getAreaEntitiesDescription(area: any, toFilter: any[] = []): string[] {
     const itemLines = getLines(toFilter, area.items || []);
     const monsterLines = getLines(toFilter, area.monsters || []);
     return itemLines.concat(monsterLines);
 }
 
-function areaComplexDescription(state, area, def) {
+function areaComplexDescription(state: any, area: any, def: any): string[] {
     const noDesc = def.noSeparateDesc || [];
     const text = getTextLines(def.text);
 
     return text.concat(getAreaEntitiesDescription(area, noDesc));
 }
 
-function itemComplexDescription(state, item, def, equipped) {
+function itemComplexDescription(state: any, item: any, def: any, equipped: any): Description {
     throw new Error('Not implemented: Item had a complex description!');
 }
 
-function monsterComplexDescription(state, monster, def) {
+function monsterComplexDescription(state: any, monster: any, def: any): Description {
     throw new Error('Not implemented: Monster had a complex description!');
 }
 
-function getTextLines(def) {
+function getTextLines(def: any): string[] {
     if (!def) {
-        throw new Error('No description: ' + def)
+        throw new Error('No description: ' + def);
     } else if (isString(def)) {
         return [def];
-    } else if (isArray(def)) {
+    } else if (isArray<string>(def)) {
         return def;
     } else {
         throw new Error('Invalid description text: ' + def);
     }
 }
 
-export function generic(state, def, simpleTransform, complexTransform) {
+export function generic(state: State, def: any, simpleTransform?: any, complexTransform?: any) {
     let lines;
     if (!isArray(def) && isObject(def)) {
         if (!complexTransform) {
@@ -80,19 +85,21 @@ export function generic(state, def, simpleTransform, complexTransform) {
     return applyTemplate(lines, state);
 }
 
-export function areaDesc(state, area, def) {
+export function areaDesc(state: State, area: any, def: any) {
     const getAreaEntities = () => getAreaEntitiesDescription(area);
     const complexDesc = () => areaComplexDescription(state, area, def);
     return generic(state, def, getAreaEntities, complexDesc);
 }
 
-export function itemDesc(state, item, def, equipped = false) {
+export function itemDesc(state: State, item: any, def: any, equipped: boolean = false) {
     return generic(state, def, () => {
         return equipped ? ['You are currently wielding the item.'] : [];
-    }, (def) => itemComplexDescription(state, item, def, equipped))
+    }, (def: any) => itemComplexDescription(state, item, def, equipped));
 }
 
-export function monsterDesc(state, monster, def) {
-    return get(state, def, () => [], (def) => monsterComplexDescription(state, monster, def))
+export function monsterDesc(state: State, monster: any, def: any) {
+    return generic(state, def, () => [], (def: any) =>
+        monsterComplexDescription(state, monster, def)
+    );
 }
 

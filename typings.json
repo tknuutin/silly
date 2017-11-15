@@ -1,5 +1,6 @@
 {
   "globalDependencies": {
-    "ramda": "file:./src/typings/ramda.d.ts"
+    "ramda": "file:./src/typings/ramda.d.ts",
+    "baconjs": "file:./src/typings/bacon.d.ts"
   }
 }

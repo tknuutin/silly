@@ -4,13 +4,13 @@ import { isObject, findObjOperation } from './utils';
 import * as R from 'ramda';
 
 const OPS = {
-    add: (x, y) => x + y,
-    sub: (x, y) => x - y,
-    div: (x, y) => x / y,
-    mul: (x, y) => x * y
+    add: (x: number, y: number): number => x + y,
+    sub: (x: number, y: number): number => x - y,
+    div: (x: number, y: number): number => x / y,
+    mul: (x: number, y: number): number => x * y
 };
 
-export function resolveValue(state, expr) {
+export function resolveValue(state: any, expr: any): number {
     if (typeof expr === 'number') {
         return expr;
     }
@@ -21,6 +21,11 @@ export function resolveValue(state, expr) {
     
     if (isObject(expr)) {
         const { opname, func } = findObjOperation(OPS, expr);
+
+        if (!opname || !func) {
+            throw new Error('Could not find correct math operation!');
+        }
+
         const left = resolveValue(state, expr[opname][0]);
         const right = resolveValue(state, expr[opname][1]);
         return func(left, right);

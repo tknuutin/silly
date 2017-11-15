@@ -24,10 +24,16 @@
     "@types/bluebird": "3.5.8",
     "@types/classnames": "2.2.0",
     "@types/node": "8.0.14",
+    "bacon.jquery": "^0.4.12",
+    "bacon.model": "^0.1.12",
+    "baconjs": "^0.7.95",
     "bluebird": "3.5.0",
-    "ramda": "0.24.1"
+    "jquery": "^3.2.1",
+    "ramda": "^0.24.1",
+    "rxjs": "^5.5.2"
   },
   "devDependencies": {
+    "@types/jquery": "^3.2.15",
     "app-root-path": "2.0.1",
     "argparse": "1.0.9",
     "autoprefixer": "7.1.2",
@@ -50,8 +56,6 @@
     "promise": "8.0.1",
     "react-dev-utils": "3.0.2",
     "react-error-overlay": "1.0.9",
-    "redux": "3.7.2",
-    "redux-observable": "0.14.1",
     "request": "2.81.0",
     "source-map-loader": "0.2.1",
     "style-loader": "0.18.2",
