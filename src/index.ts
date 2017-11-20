@@ -55,23 +55,21 @@ function getMatchingCommands({ builtins, areaCmds }: MatchingCommandPar, inputCm
 }
 
 function initSuggestions(view: View, state$: Rx.Observable<State>) {
-    // const gameInitialized = (state: State) => state.game.initialized;
+    const gameInitialized = (state: State) => state.game.initialized;
 
-    // const suggestionInfo$ = state$
-    //     .filter(gameInitialized)
-    //     .map((state: any) => state.suggestions);
+    const suggestionInfo$ = state$
+        .filter(gameInitialized)
+        .map((state: State) => state.suggestions);
 
-    // const matchingCommands = suggestionInfo$
-    //     .sampledBy(validInputP, getMatchingCommands);
+    const matchingSuggestions$ = view.validInput$
+        .withLatestFrom(suggestionInfo$, (input, suggs) => {
+            return getMatchingCommands(suggs, input);
+        })
+        .do((sugg) => {
+            view.showSuggestions(sugg);
+        });
 
-    // const suggestions = view.validInput.map(matchingCommands);
-    // suggestions.onValue(view.showSuggestions);
-
-    // view.invalidInput.onValue(() => view.showSuggestions(null));
-    
-    // suggestions.toProperty().sampledBy(view.tabs).onValue((sugg: any) => {
-    //     view.setValue(sugg[0]);
-    // });
+    matchingSuggestions$.subscribe();
 }
 
 function initStateHandling(initialState: State, view: View) {
@@ -88,20 +86,11 @@ function initStateHandling(initialState: State, view: View) {
         .do((state: State) => {
             R.forEach(view.print, state.output);
             view.onCommand();
-        });
+        })
+        .share();
 
     return state$;
 }
-
-// function getAreaCommands(state$: Rx.Observable<State>) {
-//     const areaCmds = (state: State) => state.currentArea.commands;
-//     const gameInitialized = (state: State) => state.game.initialized;
-
-//     const areaCommands = state$
-//         .filter(gameInitialized)
-//         .map(areaCmds);
-//     return areaCommands;
-// }
 
 function start() {
     getStartState().then((state) => {
@@ -109,7 +98,7 @@ function start() {
         const state$ = initStateHandling(state, view);
         state$.subscribe();
         // const areaCommands = getAreaCommands(state$);
-        // const suggestions = initSuggestions(view, state$);
+        const suggestions = initSuggestions(view, state$);
     });
 }
 

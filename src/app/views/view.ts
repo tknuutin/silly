@@ -21,42 +21,37 @@ function addTextParagraph(text: string, el: HTMLElement) {
     el.appendChild(p);
 }
 
-function initInput(commandInput: HTMLInputElement) {
+function initInput(commandInput: HTMLInputElement, fakeInput$: Rx.Observable<string>) {
+    const fakeInputText = document.getElementById('fakeinputtext') as HTMLElement;
+
     commandInput.addEventListener('blur', () => {
         commandInput.focus();
     });
 
     const tabs$ = Rx.Observable.fromEvent(commandInput, 'keydown')
-        .filter(isTab);
+        .filter(isTab)
+        .do((evt: any) => evt.preventDefault());
         
-    tabs$
-        .do((evt: any) => evt.preventDefault())
-        .subscribe();
-
     const getValue = () => commandInput.value;
 
-    const inputPressWithEnter$ = Rx.Observable.fromEvent(commandInput, 'keyup')
-        .do((evt: any) => {
-            // console.log('keypress!', isEnter(evt));
-        })
-        .filter(() => !!commandInput.value);
+    const inputPressWithEnter$ = Rx.Observable.fromEvent(commandInput, 'keyup');
 
     const inputPress$ = inputPressWithEnter$
         .filter((evt) => !isEnter(evt))
         .map(getValue)
+        .merge(
+            fakeInput$.do((val) => {
+                commandInput.value = val;
+            })
+        )
         .do((val: string) => {
-            // console.log('value!', val);
             fakeInputText.innerText = val;
         });
     inputPress$.subscribe();
 
     const inputEnter$ = inputPressWithEnter$
         .filter(isEnter)
-        .map(getValue)
-
-    
-
-    const fakeInputText = document.getElementById('fakeinputtext') as HTMLElement;
+        .map(getValue);    
 
     const valid = (text: string) => !!(text && text[0].match(/[A-Za-z]/)); 
     const inputValidity$ = inputEnter$.map(valid);
@@ -66,7 +61,7 @@ function initInput(commandInput: HTMLInputElement) {
     const validCommands$ = inputEnter$
         .filter(valid)
         .do((val) => {
-            // console.log('hello here', val);
+            fakeInputText.innerHTML = '';
             commandInput.value = '';
         });
 
@@ -90,25 +85,95 @@ export interface View {
     commands$: Rx.Observable<string>;
 }
 
+type Suggestions = string[] | undefined;
+
+function createErrorsView() {
+    // This is bugged??
+    let errors = 0;
+    const errordiv = $('#errors');
+    const showError = () => {
+        errors++;
+        errordiv.removeClass('empty-errors');
+    };
+    return showError;
+}
+
+// I dunno
+function makeSubject<T>(): { setNext: (val: T) => void, stream$: Rx.Observable<T> } {
+    const proxy: { setter: ((val: T) => void) | undefined } = {
+        setter: undefined
+    };
+
+    const setNext = (val: T): void => {
+        if (proxy.setter) {
+            proxy.setter(val);
+        }
+    };
+
+    const stream$: Rx.Observable<T> = Rx.Observable.create((obs: any) => {
+        proxy.setter = (val: T) => {
+            obs.next(val);
+        };
+    });
+
+
+    return { setNext, stream$ };
+}
+
+function createSuggestionsView(tabs$: Rx.Observable<any>, setValue: (val: string) => void) {
+    const suggDiv = $('#suggestions');
+
+    const suggSubject = makeSubject<Suggestions>();
+
+    const sugg$ = suggSubject.stream$
+        .share()
+        .do((suggs: string[] | undefined) => {
+            suggDiv.empty();
+            if (suggs && suggs.length > 0) {
+                R.forEach((text: string) => {
+                    addTextParagraph(text, suggDiv[0]);
+                }, suggs);
+            }
+        });
+
+    const tabWithSugg$ = tabs$.withLatestFrom(sugg$, (tab, sugg) => sugg)
+        .filter((sugg) => !!sugg)
+        .do((sugg: string[]) => {
+            const val = sugg[0];
+            setValue(val);
+        });
+
+    tabWithSugg$.subscribe();
+
+
+    return suggSubject.setNext;
+}
+
+function createFakeInput() {
+    const fakeInputSubject = makeSubject<string>();
+    
+    return {
+        setValue: fakeInputSubject.setNext,
+        fakeInput$: fakeInputSubject.stream$
+    };
+}
+
 export function createView(): View {
     const commandInput = $('#command');
+
+    const { setValue, fakeInput$ } = createFakeInput();
+
     const { input$, validInput$, validCommands$, tabs$ } = initInput(
-        commandInput[0] as HTMLInputElement
+        commandInput[0] as HTMLInputElement,
+        fakeInput$
     );
     commandInput.focus();
 
     const screen = $('#screen');
-    const suggDiv = $('#suggestions');
+    
+    const showSuggestions = createSuggestionsView(tabs$, setValue);
 
     const print = (text: string) => addTextParagraph(text, screen[0]);
-    const showSuggestions = (suggestions: string[] | undefined) => {
-        suggDiv.empty();
-        if (suggestions && suggestions.length > 0) {
-            R.forEach((text: string) => {
-                addTextParagraph(text, suggDiv[0]);
-            }, suggestions);
-        }
-    };
 
     validCommands$.do((cmd: string) => print('> ' + cmd)).subscribe();
 
@@ -116,16 +181,8 @@ export function createView(): View {
         screen.scrollTop(screen[0].scrollHeight);
     };
 
-    const setValue = (val: string) => {
-        commandInput.val(val);
-    };
-
-    let errors = 0;
-    const errordiv = $('#errors');
-    const showError = () => {
-        errors++;
-        errordiv.removeClass('empty-errors');
-    };
+    const showError = createErrorsView();
+    
 
     return {
         setValue,
@@ -134,6 +191,6 @@ export function createView(): View {
         showError,
         invalidInput$: input$,
         validInput$: validInput$,
-        commands$: validCommands$.delay(500),
+        commands$: validCommands$.delay(100),
     };
 }
