@@ -4,7 +4,7 @@ import { Command } from './command';
 
 type Asd = number | boolean;
 
-interface ItemRef {
+export interface ItemRef {
     ref: ContentId;
 }
 

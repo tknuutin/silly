@@ -33,6 +33,10 @@ const makeEvent = (desc: any) => ({ desc });
 function examine(state: State, match: any, inputCmd: string): Description {
     const target = match[1];
     const area = state.currentArea;
+
+    if (!area) {
+        throw new Error('No current area!');
+    }
     
     if (!target) {
         return ["Examine what?"];
@@ -55,16 +59,16 @@ function examine(state: State, match: any, inputCmd: string): Description {
         return Desc.itemDesc(state, item, item.desc, equipped);
     }
 
-    const itemMatch = findByName(target, getRefs(state.currentArea.items));
+    const itemMatch = findByName(target, getRefs(area.items));
     if (itemMatch) {
         const item = World.get(itemMatch.id);
         return Desc.itemDesc(state, item, item.desc, false);
     }
 
-    const monsterMatch = findByName(target, getRefs(state.currentArea.monsters));
-    if (monsterMatch) {
-        const monster = World.get(monsterMatch.id);
-        return Desc.monsterDesc(state, monster, monster.desc);
+    const actorMatch = findByName(target, getRefs(area.actors));
+    if (actorMatch) {
+        const actor = World.get(actorMatch.id);
+        return Desc.monsterDesc(state, actor, actor.desc);
     }
 
     return ["You don't see any of that around for your eager eyes to peep."];

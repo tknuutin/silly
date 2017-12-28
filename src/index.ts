@@ -8,6 +8,8 @@ import { get, getStartState } from './app/game/world';
 import { nextState } from './app/game/game';
 import { State } from './app/game/state';
 
+import { Command } from './app/types/command';
+
 const updateState = (initialState: State) => {
     // Sort of a mutable state hack
     let currentState = initialState;
@@ -19,21 +21,21 @@ const updateState = (initialState: State) => {
 
     (window as any)._stateToJson = () => JSON.stringify(currentState);
 
-    return (cmd: string): State => {
-        return Rx.Observable.fromPromise(
-            nextState(currentState, cmd).then((state) => {
+    return (cmd: string): Rx.Observable<State> =>
+        Rx.Observable.fromPromise<State>(
+            nextState(currentState, cmd).then((state: State) => {
                 setState(state);
                 return state;
             })
         );
-    };
+    
 };
 
 const trigger = R.prop('trigger');
 
 interface MatchingCommandPar {
-    builtins: any[];
-    areaCmds: any[];
+    builtins: Command[];
+    areaCmds: Command[];
 }
 
 function getMatchingCommands({ builtins, areaCmds }: MatchingCommandPar, inputCmd: string) {
@@ -42,7 +44,7 @@ function getMatchingCommands({ builtins, areaCmds }: MatchingCommandPar, inputCm
     }
 
     const testCmd = inputCmd.length === 2 ? inputCmd + ' ' : inputCmd;
-    const findMatches = R.reduce((acc: any, cmd: any) => {
+    const findMatches = R.reduce((acc: string[], cmd: Command) => {
         const triggers = [cmd.trigger].concat(cmd.alias || []);
         const newMatches = R.filter((trigger) => trigger.indexOf(testCmd) === 0, triggers);
         return acc.concat(newMatches);
@@ -72,7 +74,7 @@ function initSuggestions(view: View, state$: Rx.Observable<State>) {
     matchingSuggestions$.subscribe();
 }
 
-function initStateHandling(initialState: State, view: View) {
+function initStateHandling(initialState: State, view: View): Rx.Observable<State> {
     const cmd$ = view.commands$;
 
     const state$ = Rx.Observable.of([null])
@@ -87,7 +89,7 @@ function initStateHandling(initialState: State, view: View) {
             R.forEach(view.print, state.output);
             view.onCommand();
         })
-        .share();
+        .share() as Rx.Observable<State>;
 
     return state$;
 }

@@ -10,6 +10,7 @@ import * as Command from './command';
 // import * as Monster from './monster';
 import { areaDesc } from './desc';
 import { isString, isArray, trunc } from './utils';
+import { State } from './state';
 
 // I dunno
 const l = {
@@ -21,36 +22,42 @@ const pr = {
 };
 
 
-function print(state: any, text: any) {
+function print(state: State, text: string | string[]): State {
     text = isArray(text) ? text : [text];
     R.forEach((l) => state.output.push(l), text);
     return state;
 }
 
-function firstVisitOnArea(area: any, state: any) {
+function firstVisitOnArea(area: any, state: State) {
     const desc = areaDesc(state, area, area.firstDesc);
     print(state, desc);
     return R.set(l.areas, R.set(R.lensProp(area.id), {}, state.areas), state);
 }
 
-function enterArea(areaId: string, state: any) {
+function enterArea(areaId: string, state: State) {
     return fetchAreaData(areaId).then(() => {
+        if (!state.currentArea) {
+            throw new Error('Aaaa!!!');
+        }
+
         state.lastArea = state.currentArea.id;
-        state.currentArea = get(areaId);
 
-        const { areas, currentArea } = state;
+        const newCurrentArea = get(areaId);
+        state.currentArea = newCurrentArea;
 
-        if (!areas[currentArea.id]) {
-            return firstVisitOnArea(currentArea, state);
+        const { areas } = state;
+
+        if (!areas[newCurrentArea.id]) {
+            return firstVisitOnArea(newCurrentArea, state);
         } else {
-            print(state, areaDesc(state, currentArea, currentArea.desc));
+            print(state, areaDesc(state, newCurrentArea, newCurrentArea.desc));
         }
 
         return state;    
     });
 }
 
-function moveTime(time: number, state: any): { state: any, interrupts: any[], deferred: any[] } {
+function moveTime(time: number, state: State): { state: any, interrupts: any[], deferred: any[] } {
     const moveAmount = time || 5;
     // to implement heh
     // const [interrupts, deferred] = Monster.moveTime(state, moveAmount);
@@ -59,31 +66,32 @@ function moveTime(time: number, state: any): { state: any, interrupts: any[], de
     return { state, interrupts: [], deferred: [] };
 }
 
-function handleEvent(event: any, state: any) {
-    const timeMoveResult = moveTime(event.time, state);
-    state = timeMoveResult.state;
-    const { interrupts, deferred } = timeMoveResult;
+function handleEvent(event: any, inState: State) {
+    const timeMoveResult = moveTime(event.time, inState);
+    const { state, interrupts, deferred } = timeMoveResult;
     const shouldCancel = R.any((x: any) => !!x, R.map((i) => i.cancel, interrupts));
 
-    const applyEvents = R.reduce((state, evt) => GEvent.execEvent(evt, state));
+    const applyEvents = R.reduce((state: State, evt: any) => GEvent.execEvent(evt, state));
 
-    state = applyEvents(state, interrupts);
+    const stateAppliedEvents = applyEvents(state, interrupts);
 
     if (shouldCancel) {
-        return { state, move: null };
+        return { state: stateAppliedEvents, move: null };
     }
 
     if (event.move) {
-        return { state, move: event.move };
+        return { state: stateAppliedEvents, move: event.move };
     }
     
-    state = GEvent.execEvent(event, state);
-    state = applyEvents(state, deferred);
+    const stateExecEvents = GEvent.execEvent(event, state);
 
-    return { state, move: null };
+    // What is going on here
+    const stateAppliedEventsAgain = applyEvents(stateExecEvents, deferred);
+
+    return { state: stateAppliedEventsAgain, move: null };
 }
 
-function handleCommandFromPlayer(state: any, inputCmd: string) {
+function handleCommandFromPlayer(state: State, inputCmd: string) {
     const { currentArea, lastArea, areas } = state;
 
     const command = Command.getCommand(state, currentArea, inputCmd);
@@ -106,7 +114,7 @@ function handleCommandFromPlayer(state: any, inputCmd: string) {
     return Promise.resolve(state);
 }
 
-function makeState(old: any, inputCmd: string) {
+function makeState(old: State, inputCmd: string): State {
     // I'm not too sure about what this is supposed to do anymore
     return {
         game: R.clone(old.game),
@@ -119,7 +127,7 @@ function makeState(old: any, inputCmd: string) {
         lastInput: inputCmd,
         time: old.time,
         cmds: old.cmds + 1,
-        suggestions: { areaCmds: [] },
+        suggestions: { areaCmds: [], builtins: [] },
         output: []
     };
 }
@@ -137,7 +145,7 @@ function getSuggestions(state: any) {
     return state;
 }
 
-export function nextState(oldState: any, inputCmd: string = '') {
+export function nextState(oldState: State, inputCmd: string = ''): Promise<State> {
     const state = makeState(oldState, inputCmd);
 
     if (!state.game.askedName) {

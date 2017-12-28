@@ -3,6 +3,8 @@ import { getByIds } from '../api/network';
 import * as R from 'ramda';
 import { isString } from './utils'; 
 
+import { Area } from '../types/area';
+import { State } from './state';
 
 let cache = {};
 
@@ -42,7 +44,7 @@ export function fetchAreaData(areaId: string) {
     });
 }
 
-const STARTSTATE = {
+const STARTSTATE: State = {
     id: 0,
     lastInput: '',
     lastArea: null,
@@ -72,7 +74,10 @@ const STARTSTATE = {
             luck: 10      // yep
         }
     },
-    currentArea: null, // set later
+    suggestions: {
+        areaCmds: [], builtins: []
+    },
+    currentArea: (undefined as any as Area), // set later
     areas: {},
     output: ['Starting game!']
 };
@@ -83,10 +88,9 @@ const DEBUGWORLD = null;
 export function getStartState() {
     const startAreaId = 'core:area:bedroom';
     return fetchAreaData(startAreaId)
-        .then((area: any) => {
+        .then((area: Area) => {
             const state = R.clone(DEBUGSTATE || STARTSTATE);
             state.currentArea = area;
-            // debugger;
 
             if (DEBUGWORLD) {
                 saveToCache(DEBUGWORLD);    

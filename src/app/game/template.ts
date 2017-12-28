@@ -2,11 +2,13 @@
 import * as R from 'ramda';
 import { ensureArray } from './utils';
 
-function getValueFromState(pathStr: string, state: any, rules: any): number {
+import { State } from './state';
+
+function getValueFromState(pathStr: string, state: State, rules: Rules): string {
     const path = pathStr.split('.');
 
     if (R.path(path, rules.objectAccess)) {
-        return R.path(path, state);
+        return R.path(path, state) as string;
     }
 
     const special = rules.special[path[0]];
@@ -17,7 +19,7 @@ function getValueFromState(pathStr: string, state: any, rules: any): number {
     throw new Error('Invalid template path: ' + pathStr);
 }
 
-function replaceWithRules(str: string, state: any, rules: any): string {
+function replaceWithRules(str: string, state: State, rules: Rules): string {
     // This whole function is a bit dump
     const open = '{';
     const close = '}';
@@ -31,6 +33,7 @@ function replaceWithRules(str: string, state: any, rules: any): string {
     let lastReplaceEnd = 0;
     let lastReplaceStart = 0;
 
+    // JEesus look at this thing
     while (i < len) {
         const symbol = str[i];
         const index = i;
@@ -52,6 +55,7 @@ function replaceWithRules(str: string, state: any, rules: any): string {
             if (found === 0) {
                 found = 1;
             } else if (found === 1) {
+                // AAaaah
                 const valuePath = str.slice(lastReplaceStart + 1, index - 1);
                 const text = getValueFromState(valuePath, state, rules);
                 final += text;
@@ -66,7 +70,27 @@ function replaceWithRules(str: string, state: any, rules: any): string {
     return final;
 }
 
-const rules = {
+interface Rules {
+    objectAccess: {
+        player: {
+            name: boolean;
+            health: boolean;
+            stats: {
+                brawn: boolean;
+                gait: boolean;
+                allure: boolean;
+                mind: boolean;
+                grit: boolean;
+                luck: true;
+            };
+        };
+    };
+    special: {
+        [index: string]: (state: State) => string;
+    };
+}
+
+const rules: Rules = {
     objectAccess: {
         player: {
             name: true,
@@ -88,11 +112,11 @@ const rules = {
     }
 };
 
-function applyTemplateToLine(str: string, state: any) {
+function applyTemplateToLine(str: string, state: State): string {
     return replaceWithRules(str, state, rules);
 }
 
-export const applyTemplate = (lines: string[], state: any) =>
+export const applyTemplate = (lines: string[], state: State): string[] =>
     R.map((line: string) => applyTemplateToLine(line, state), ensureArray(lines));
 
 

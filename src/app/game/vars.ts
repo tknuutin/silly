@@ -28,7 +28,7 @@ export function set(varId: string, value: number, state: State): State {
 
 function modifyWith(func: (x: number, y: number) => number) {
     return (varId: string, value: number, state: State): State => {
-        const val = getValue(varId, state);
+        const val = getValue(state, varId);
         return set(varId, func(val, value), state);
     };
 }
@@ -38,7 +38,7 @@ export const sub = modifyWith((x, y) => x - y);
 export const mul = modifyWith((x, y) => x * y);
 export const div = modifyWith((x, y) => x / y);
 
-export function getValue(state: any, varId: string): number {
+export function getValue(state: State, varId: string): number {
     const [namespace, name] = parse(varId);
     if (namespace === 'global') {
         return state.vars[name];

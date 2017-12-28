@@ -1,5 +1,6 @@
 
 import { randomChoice } from './utils';
+import { State } from './state';
 
 const NAME_INSULTS = [
     "Really? I guess that's what we're working with.",
@@ -11,23 +12,23 @@ const NAME_INSULTS = [
     "A fitting choice."
 ];
 
-export function unknownCommand() {
+export function unknownCommand(): string {
     return "You are startled by a strange thought you just had.";
 }
 
-export function nameAsk() {
+export function nameAsk(): string[] {
     return [
         "You feel dizzy, like you've just woken up from a heavy nap. You can't quite remember your name.",
         "By enormous strain the gears in your meatpan start turning. Yes, your name is..."
     ];
 }
 
-export function namePrint(state: any) {
+export function namePrint(state: State): string[] {
     const insult = randomChoice(NAME_INSULTS);
     return [`Your name is ${state.player.name}. ${insult}`];
 }
 
-export function takeEmpty() {
+export function takeEmpty(): string[] {
     return randomChoice([
         ["Take what?"],
         ["Your hands vainly attempt to grab at nothingness."],
@@ -36,7 +37,7 @@ export function takeEmpty() {
     ]);
 }
 
-export function takeNonExisting() {
+export function takeNonExisting(): string[] {
     return randomChoice([
         ["You don't see any of that around for your eager hands to grab."],
         ["Your hands vainly attempt to grab at nothingness."]
