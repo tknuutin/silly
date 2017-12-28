@@ -34,10 +34,7 @@ function initInput(commandInput: HTMLInputElement, fakeInput$: Rx.Observable<str
         
     const getValue = () => commandInput.value;
 
-    const inputPressWithEnter$ = Rx.Observable.fromEvent(commandInput, 'keyup');
-
-    const inputPress$ = inputPressWithEnter$
-        .filter((evt) => !isEnter(evt))
+    const inputPress$ = Rx.Observable.fromEvent(commandInput, 'input')
         .map(getValue)
         .merge(
             fakeInput$.do((val) => {
@@ -49,7 +46,7 @@ function initInput(commandInput: HTMLInputElement, fakeInput$: Rx.Observable<str
         });
     inputPress$.subscribe();
 
-    const inputEnter$ = inputPressWithEnter$
+    const inputEnter$ = Rx.Observable.fromEvent(commandInput, 'keyup')
         .filter(isEnter)
         .map(getValue);    
 
