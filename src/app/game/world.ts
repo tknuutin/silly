@@ -5,6 +5,8 @@ import { isString } from './utils';
 
 import { Area } from '../types/area';
 import { State } from './state';
+import { InternalArea } from './itypes/iarea';
+import { convertArea } from './converters/area';
 
 let cache = {};
 
@@ -14,7 +16,7 @@ function saveToCache(ids: any) {
 
 (window as any)._worldToJson = () => JSON.stringify(cache);
 
-export function get(id: string) {
+export function get<T>(id: string): T {
     if (!cache[id]) {
         throw new Error('Could not find resource: ' + id);
     }
@@ -32,14 +34,14 @@ function getAndCache(ids: string[]) {
 
 const getRefs = R.map(R.prop('ref'));
 
-export function fetchAreaData(areaId: string) {
+export function fetchAreaData(areaId: string): Promise<InternalArea> {
     return getAndCache([areaId]).then((data) => {
         const area = data[areaId];
         const refs = area.refs
             .concat(getRefs(area.items || []))
             .concat(getRefs(area.monsters || []));
         return getAndCache(refs).then(() => {
-            return area;
+            return convertArea(area);
         });
     });
 }
@@ -77,7 +79,7 @@ const STARTSTATE: State = {
     suggestions: {
         areaCmds: [], builtins: []
     },
-    currentArea: (undefined as any as Area), // set later
+    currentArea: (undefined as any as InternalArea), // set later
     areas: {},
     output: ['Starting game!']
 };
@@ -88,7 +90,7 @@ const DEBUGWORLD = null;
 export function getStartState() {
     const startAreaId = 'core:area:bedroom';
     return fetchAreaData(startAreaId)
-        .then((area: Area) => {
+        .then((area: InternalArea) => {
             const state = R.clone(DEBUGSTATE || STARTSTATE);
             state.currentArea = area;
 

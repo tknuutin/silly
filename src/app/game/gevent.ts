@@ -6,11 +6,12 @@ import * as World from './world';
 import * as R from 'ramda';
 import * as Vars from './vars';
 import * as Logic from './logic';
+import { InternalArea } from './itypes/iarea';
 
 import { State, PlayerItemRef } from './state';
 import { Item } from '../types/item';
 import { Event } from '../types/event';
-import { Area, ItemRef } from '../types/area';
+import { ItemRef } from '../types/area';
 import { LogicAtom, Combinator } from '../types/logic';
 
 type Condition = LogicAtom | Combinator;
@@ -51,14 +52,14 @@ function isItemReference(itemRef: PlayerItemRef) {
     };
 }
 
-function areaHasItem(area: Area, itemRef: PlayerItemRef) {
+function areaHasItem(area: InternalArea, itemRef: PlayerItemRef) {
     // only compare the id for now
     return !R.any(isItemReference(itemRef), area.items || []);
 }
 
 function resolveRemove({ target, item }: any, state: State): any {
     if (item) {
-        const itemDef = World.get(item.ref);
+        const itemDef = World.get<PlayerItemRef>(item.ref);
         if (target === 'area') {
             const cArea = state.currentArea;
             if (!cArea || !areaHasItem(cArea, itemDef)) {
@@ -113,7 +114,7 @@ export function execEvent(event: any, state: State): State {
     if (event.give) {
         const { item } = event.give;
         if (item) {
-            const itemDef = World.get(item.ref);
+            const itemDef = World.get<PlayerItemRef>(item.ref);
             state.player.items = state.player.items.concat([itemDef]);
         }
     }

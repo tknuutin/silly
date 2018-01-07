@@ -5,9 +5,10 @@ import * as World from './world';
 import { isArray, isString, isObject, upper } from './utils';
 
 import { Description } from '../types/common';
+import { Item } from '../types/item';
 import { State } from './state';
 
-const getName = ({ ref }: any) => R.toUpper(World.get(ref).name);
+const getName = ({ ref }: { ref: string }) => R.toUpper(World.get<{ name: string }>(ref).name);
 const getNames = R.map(getName);
 const padEmpty = R.prepend('');
 function padIfItems(arr: string[]): string[] {

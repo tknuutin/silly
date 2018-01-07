@@ -45,6 +45,13 @@ export interface Event extends MathOperationOwner {
     // If no description is given, will autogenerate.
     desc?: Description;
 
+    time?: number;
+
+    // If this event is in a chain of events, should we cancel the following events?
+    // Example: if something that happens because of a monster attack due should
+    // cancel the action the player is about to make. Maybe?? Idk.
+    cancel?: boolean;
+
     // Math operations. Use this to do more than one variable
     // change per event.
     math?: Array<MathOperationOwner>;

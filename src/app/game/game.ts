@@ -7,10 +7,13 @@ import * as Text from './text';
 import * as Logic from './logic';
 import * as GEvent from './gevent';
 import * as Command from './command';
-// import * as Monster from './monster';
+import { InternalArea } from './itypes/iarea';
 import { areaDesc } from './desc';
 import { isString, isArray, trunc } from './utils';
 import { State } from './state';
+import { Event } from '../types/event';
+import { Area } from '../types/area';
+import * as GTime from './gtime';
 
 // I dunno
 const l = {
@@ -42,7 +45,7 @@ function enterArea(areaId: string, state: State) {
 
         state.lastArea = state.currentArea.id;
 
-        const newCurrentArea = get(areaId);
+        const newCurrentArea = get<InternalArea>(areaId);
         state.currentArea = newCurrentArea;
 
         const { areas } = state;
@@ -57,35 +60,31 @@ function enterArea(areaId: string, state: State) {
     });
 }
 
-function moveTime(time: number, state: State): { state: any, interrupts: any[], deferred: any[] } {
-    const moveAmount = time || 5;
-    // to implement heh
-    // const [interrupts, deferred] = Monster.moveTime(state, moveAmount);
+const applyEvents = R.reduce((state: State, evt: Event) => GEvent.execEvent(evt, state));
 
-    state.time += time || 5;
-    return { state, interrupts: [], deferred: [] };
-}
-
-function handleEvent(event: any, inState: State) {
-    const timeMoveResult = moveTime(event.time, inState);
+function handleEvent(event: Event, inState: State) {
+    const timeMoveResult = GTime.moveTime(inState, event.time || 5);
     const { state, interrupts, deferred } = timeMoveResult;
     const shouldCancel = R.any((x: any) => !!x, R.map((i) => i.cancel, interrupts));
 
-    const applyEvents = R.reduce((state: State, evt: any) => GEvent.execEvent(evt, state));
-
+    // First we apply stuff that happens before the actual event,
+    // as a result of time moving. Like monsters doing stuff.
+    // These might cancel and stop further events from happens.
     const stateAppliedEvents = applyEvents(state, interrupts);
 
     if (shouldCancel) {
         return { state: stateAppliedEvents, move: null };
     }
 
+    // Only the original event can move the player?? Idk
     if (event.move) {
         return { state: stateAppliedEvents, move: event.move };
     }
     
     const stateExecEvents = GEvent.execEvent(event, state);
 
-    // What is going on here
+    // Apply stuff that happens because of time moving but should
+    // be resolved after the player-caused-events happen.
     const stateAppliedEventsAgain = applyEvents(stateExecEvents, deferred);
 
     return { state: stateAppliedEventsAgain, move: null };

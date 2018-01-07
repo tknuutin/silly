@@ -2,7 +2,10 @@
 import { Description, VariableRef, ContentId } from './common';
 import { Command } from './command';
 
-type Asd = number | boolean;
+
+export interface ActorRef {
+    ref: ContentId;
+}
 
 export interface ItemRef {
     ref: ContentId;
@@ -36,6 +39,6 @@ export interface Area {
     items?: Array<ItemRef>;
 
     // NPCs present in the area.
-    actors?: Array<ItemRef>;
+    actors?: Array<ActorRef>;
 }
 

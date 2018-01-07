@@ -1,6 +1,6 @@
 
 import { Command } from '../types/command';
-import { Area } from '../types/area';
+import { InternalArea } from './itypes/iarea';
 
 export interface PlayerItemRef {
     ref: string;
@@ -29,7 +29,7 @@ export interface State {
     };
     player: Player;
     lastArea: any;
-    currentArea: Area;
+    currentArea: InternalArea;
     areas: any;
     vars: any;
     id: number;

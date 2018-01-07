@@ -90,7 +90,7 @@ interface Rules {
     };
 }
 
-const rules: Rules = {
+export const DEF_RULES: Rules = {
     objectAccess: {
         player: {
             name: true,
@@ -112,12 +112,18 @@ const rules: Rules = {
     }
 };
 
-function applyTemplateToLine(str: string, state: State): string {
-    return replaceWithRules(str, state, rules);
-}
+export const makeDmgRules = (hitDmg: (state: State) => string): Rules =>
+    R.set(R.lensPath(['special', 'hitDmg']), hitDmg, DEF_RULES);
+
+
+export const applyTemplateWithRules = (lines: string[], state: State, rules: Rules): string[] => {
+    return R.map((line: string) => {
+        return replaceWithRules(line, state, rules);
+    }, ensureArray(lines));
+};
 
 export const applyTemplate = (lines: string[], state: State): string[] =>
-    R.map((line: string) => applyTemplateToLine(line, state), ensureArray(lines));
+    applyTemplateWithRules(lines, state, DEF_RULES);
 
 
 

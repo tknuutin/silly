@@ -8,8 +8,10 @@ import * as Text from './text';
 
 import { Description } from '../types/common';
 import { Command } from '../types/command';
-import { State } from './state';
+import { State, PlayerItemRef } from './state';
 import { Area } from '../types/area';
+import { Item } from '../types/item';
+import { InternalArea } from './itypes/iarea';
 
 export interface InternalCommand extends Command {
     _global?: boolean;
@@ -25,13 +27,29 @@ function makeInBuiltCommand(name: any, event: any) {
     };
 }
 
-const getRefs = (list: any[] | undefined) =>
-    R.map(R.pipe(R.prop('ref'), World.get), list || []);
+function getRef<T>() {
+    return R.pipe(R.prop('ref'), (ref: string) => World.get<T>(ref));
+}
+
+function getRefs<T>(list: any[] | undefined): T[] {
+    return R.map(getRef<T>(), list || []);
+}
+
 const currentAreaIsRoom = (area: any) => R.any(R.equals('room'), area.tags);
 const makeEvent = (desc: any) => ({ desc });
 
+const toItemAndRefPair = R.map(
+    (ref: PlayerItemRef) => [ref, getRef<Item>()(ref)] as [PlayerItemRef, Item]
+);
+
+const getPlayerItemMatch = (target: string, itemRefs: PlayerItemRef[]) =>
+    R.find(
+        ([ref, item]) => item.name === target,
+        toItemAndRefPair(itemRefs)
+    );
+
 function examine(state: State, match: any, inputCmd: string): Description {
-    const target = match[1];
+    const target: string = match[1];
     const area = state.currentArea;
 
     if (!area) {
@@ -52,23 +70,22 @@ function examine(state: State, match: any, inputCmd: string): Description {
         }
     }
 
-    const playerItemMatch = findByName(target, getRefs(state.player.items));
+    const playerItemMatch = getPlayerItemMatch(target, state.player.items);
+
     if (playerItemMatch) {
-        const { id, equipped } = playerItemMatch;
-        const item = World.get(id);
-        return Desc.itemDesc(state, item, item.desc, equipped);
+        const [playerRef, itemDef] = playerItemMatch;
+        const { ref, equipped } = playerRef;
+        return Desc.itemDesc(state, itemDef, itemDef.desc, equipped);
     }
 
-    const itemMatch = findByName(target, getRefs(area.items));
+    const itemMatch = findByName(target, getRefs<Item>(area.items));
     if (itemMatch) {
-        const item = World.get(itemMatch.id);
-        return Desc.itemDesc(state, item, item.desc, false);
+        return Desc.itemDesc(state, itemMatch, itemMatch.desc, false);
     }
 
-    const actorMatch = findByName(target, getRefs(area.actors));
+    const actorMatch = findByName(target, area.actors || []);
     if (actorMatch) {
-        const actor = World.get(actorMatch.id);
-        return Desc.monsterDesc(state, actor, actor.desc);
+        return Desc.monsterDesc(state, actorMatch, actorMatch.desc);
     }
 
     return ["You don't see any of that around for your eager eyes to peep."];
@@ -82,22 +99,21 @@ function take(state: any, match: any, inputCmd: string): any {
         return { desc: Text.takeEmpty() };
     }
 
-    const playerItemMatch = findByName(target, getRefs(state.player.items));
+    const playerItemMatch = getPlayerItemMatch(target, state.player.items);
     if (playerItemMatch) {
         return { desc: ["You already have that, you horse's ass!"] };
     }
 
     const areaItems = state.currentArea.items;
-    const itemMatch = findByName(target, getRefs(areaItems));
+    const itemMatch = findByName(target, getRefs<Item>(areaItems));
     if (itemMatch) {
-        const item = World.get(itemMatch.id);
-        if (!item.carry) {
+        if (!itemMatch.carry) {
             return { desc: ['You cannot carry that yet!'] };
         }
 
-        const output = isObject(item.carry) && item.carry.onPickupDesc
-            ? Desc.generic(state, item.carry.onPickupDesc)
-            : [`You pick up the ${item.name.toUpperCase()}.`];
+        const output = isObject(itemMatch.carry) && itemMatch.carry.onPickupDesc
+            ? Desc.generic(state, itemMatch.carry.onPickupDesc)
+            : [`You pick up the ${itemMatch.name.toUpperCase()}.`];
 
         return {
             give: {
@@ -114,8 +130,8 @@ function take(state: any, match: any, inputCmd: string): any {
         };
     }
 
-    const monsterMatch = findByName(target, getRefs(state.currentArea.monsters));
-    if (monsterMatch) {
+    const actorMatch = findByName(target, state.currentArea.actors);
+    if (actorMatch) {
         return { desc: ["You cannot and/or won't put that in your pocket!!"] };
     }
 
@@ -189,7 +205,7 @@ export function getCommand(state: State, area: any, inputCmd: string): MaybeComm
 
 const lAreas = R.lensProp('areas');
 
-export function registerCommandUsed(command: InternalCommand, currentArea: Area, state: State) {
+export function registerCommandUsed(command: InternalCommand, currentArea: InternalArea, state: State) {
     if (command._global) {
         return state;
     }

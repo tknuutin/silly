@@ -1,10 +1,10 @@
 
 import { VariableRef, Description, ContentId } from './common';
 // import { GNumber, MathOp } from './math';
+import { DamageEvent } from './damage';
 
-type DamageEvent = {};
 
-export interface Monster {
+export interface Actor {
     id: ContentId;
 
     name: string;
@@ -27,5 +27,6 @@ export interface Monster {
     grunt?: Array<{
         desc: Description;
         chance: number;
-    }>
+    }>;
 }
+
