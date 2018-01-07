@@ -1,4 +1,4 @@
 build/
 node_modules/
 temp/
-types/*.js
+src/app/types/*.js

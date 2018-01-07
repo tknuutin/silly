@@ -21,13 +21,11 @@
     "extends": "react-app"
   },
   "dependencies": {
-    "@types/bluebird": "3.5.8",
     "@types/classnames": "2.2.0",
     "@types/node": "8.0.14",
     "bacon.jquery": "^0.4.12",
     "bacon.model": "^0.1.12",
     "baconjs": "^0.7.95",
-    "bluebird": "3.5.0",
     "jquery": "^3.2.1",
     "ramda": "^0.24.1",
     "rxjs": "^5.5.2"
@@ -48,6 +46,10 @@
     "extract-text-webpack-plugin": "3.0.0",
     "file-loader": "0.11.2",
     "fs-extra": "4.0.0",
+    "gulp": "^3.9.1",
+    "gulp-exec": "^3.0.1",
+    "gulp-modify-file": "^1.0.0",
+    "gulp-rename": "^1.2.2",
     "html-webpack-plugin": "2.29.0",
     "moment": "2.18.1",
     "object-assign": "4.1.1",
