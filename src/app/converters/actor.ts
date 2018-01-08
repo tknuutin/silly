@@ -6,6 +6,7 @@ import { getGameID } from '../util/gid';
 export const convertActor = (a: Actor): InternalActor => {
     return {
         ...a,
+        _type: 'actor',
         aid: getGameID()
     };
 };

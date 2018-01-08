@@ -2,30 +2,45 @@
 import * as R from 'ramda';
 import { applyTemplate } from './template';
 import * as World from '../game/world';
+import * as TC from '../game/typecheck';
 import { isArray, isString, isObject, upper } from '../util/utils';
-
-import { Description } from '../types/common';
+import { InternalArea } from '../itypes/iarea';
+import { InternalActor } from '../itypes/iactor';
+import { Description, DescriptionObject } from '../types/common';
+import { ItemRef } from '../types/area';
 import { Item } from '../types/item';
 import { State } from '../data/state';
 
-const getName = ({ ref }: { ref: string }) => R.toUpper(World.get<{ name: string }>(ref).name);
+
+type GameObject = ItemRef | InternalActor;
+
+const getName = (obj: GameObject) => {
+    const name = (TC.isRef(obj)) ?
+        World.get<{ name: string }>(obj.ref).name :
+        (TC.isIActor(obj) ? obj.name : undefined)
+
+    if (name === undefined) {
+        throw new Error('Unrecognized type in getName');
+    }
+    return R.toUpper(name);
+    
+}
 const getNames = R.map(getName);
 const padEmpty = R.prepend('');
 function padIfItems(arr: string[]): string[] {
     return arr.length > 0 ? padEmpty(arr) : [];
 }
 
-const filterIds = (ids: any[]) => {
-    return R.filter(({ ref }) => {
+const filterIds = (ids: string[]) => {
+    return R.filter(({ ref }: { ref: string }) => {
         return !R.any((id) => id === ref, ids);
     });
 };
 
-const getLines = (idsToFilter: any, objs: any) =>
+const getLines = (idsToFilter: string[], objs: GameObject[]) =>
     R.pipe(filterIds(idsToFilter), getTextForGameObjects, padIfItems)(objs);
 
-
-function getTextForGameObjects(items: any) {
+function getTextForGameObjects(items: GameObject[]) {
     if (!items || items.length < 1 ) {
         return [];
     }
@@ -40,28 +55,28 @@ function getTextForGameObjects(items: any) {
     return [`There is a ${rest} and a ${last} here.`];
 }
 
-function getAreaEntitiesDescription(area: any, toFilter: any[] = []): string[] {
+function getAreaEntitiesDescription(area: InternalArea, toFilter: string[] = []): string[] {
     const itemLines = getLines(toFilter, area.items || []);
-    const monsterLines = getLines(toFilter, area.monsters || []);
+    const monsterLines = getLines(toFilter, area.actors || []);
     return itemLines.concat(monsterLines);
 }
 
-function areaComplexDescription(state: any, area: any, def: any): string[] {
+function areaComplexDescription(state: State, area: InternalArea, def: DescriptionObject): string[] {
     const noDesc = def.noSeparateDesc || [];
     const text = getTextLines(def.text);
 
     return text.concat(getAreaEntitiesDescription(area, noDesc));
 }
 
-function itemComplexDescription(state: any, item: any, def: any, equipped: any): Description {
+function itemComplexDescription(state: State, item: any, def: DescriptionObject, equipped: any): Description {
     throw new Error('Not implemented: Item had a complex description!');
 }
 
-function monsterComplexDescription(state: any, monster: any, def: any): Description {
-    throw new Error('Not implemented: Monster had a complex description!');
+function monsterComplexDescription(state: State, actor: InternalActor, def: DescriptionObject): Description {
+    throw new Error('Not implemented: Actor had a complex description!');
 }
 
-function getTextLines(def: any): string[] {
+function getTextLines(def: Description): string[] {
     if (!def) {
         throw new Error('No description: ' + def);
     } else if (isString(def)) {
@@ -86,9 +101,9 @@ export function generic(state: State, def: any, simpleTransform?: any, complexTr
     return applyTemplate(lines, state);
 }
 
-export function areaDesc(state: State, area: any, def: any) {
+export function areaDesc(state: State, area: InternalArea, def: Description) {
     const getAreaEntities = () => getAreaEntitiesDescription(area);
-    const complexDesc = () => areaComplexDescription(state, area, def);
+    const complexDesc = () => areaComplexDescription(state, area, def as DescriptionObject);
     return generic(state, def, getAreaEntities, complexDesc);
 }
 
@@ -98,9 +113,9 @@ export function itemDesc(state: State, item: any, def: any, equipped: boolean = 
     }, (def: any) => itemComplexDescription(state, item, def, equipped));
 }
 
-export function monsterDesc(state: State, monster: any, def: any) {
+export function monsterDesc(state: State, actor: any, def: any) {
     return generic(state, def, () => [], (def: any) =>
-        monsterComplexDescription(state, monster, def)
+        monsterComplexDescription(state, actor, def)
     );
 }
 
