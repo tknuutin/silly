@@ -1,5 +1,7 @@
 {
-    "refs": ["core:area:bedroom"],
+    "refs": [
+        "core:area:bedroom"
+    ],
     "id": "core:area:kitchen",
     "name": "Kitchen",
     "tags": ["room", "home"],
@@ -13,5 +15,8 @@
                 "move": "core:area:bedroom"
             }]
         }
+    ],
+    "actors": [
+        { "ref": "core:actor:kitchen-weirdblob" }
     ]
 }

@@ -37,7 +37,7 @@
             "usable": 1,
             "events": {
                 "spawn": {
-                    "monster": {
+                    "actor": {
                         "ref": "none"
                     }
                 }
@@ -65,7 +65,7 @@
                         "set": ["global:has_tried_to_open_bedroom_door", 1]
                     }
                 ],
-                [null,{
+                [null, {
                     "desc": "With the way to the fertile lands of the kitchen now open, you step through the passage.",
                     "move": "core:area:kitchen"
                 }]

@@ -7,4 +7,5 @@ export interface InternalActor extends Actor {
     lastAttack?: number;
     lastGrunt?: number;
     isAngry?: boolean;
+    isFriendly?: boolean;
 }

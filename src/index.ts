@@ -21,14 +21,16 @@ const updateState = (initialState: State) => {
 
     (window as any)._stateToJson = () => JSON.stringify(currentState);
 
-    return (cmd: string): Rx.Observable<State> =>
-        Rx.Observable.fromPromise<State>(
+    return (cmd: string): Rx.Observable<State> => {
+        // console.log('cmd', cmd);
+        // debugger;
+        return Rx.Observable.fromPromise<State>(
             nextState(currentState, cmd).then((state: State) => {
                 setState(state);
                 return state;
             })
         );
-    
+    };
 };
 
 const trigger = R.prop('trigger');
@@ -77,8 +79,9 @@ function initSuggestions(view: View, state$: Rx.Observable<State>) {
 function initStateHandling(initialState: State, view: View): Rx.Observable<State> {
     const cmd$ = view.commands$;
 
-    const state$ = Rx.Observable.of([null])
-        .merge(cmd$)
+    const state$ = cmd$
+    // const state$ = Rx.Observable.of([null])
+    //     .merge(cmd$)
         .flatMap(updateState(initialState))
         .catch((e: any, c: any) => {
             console.error(e);

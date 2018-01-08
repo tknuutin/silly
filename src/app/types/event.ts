@@ -24,13 +24,13 @@ interface ItemRef {
     ref: ContentId;
 }
 
-interface MonsterRef {
+interface ActorRef {
     ref: ContentId;
 }
 
 interface SpawnEvent {
     item?: ItemRef;
-    monster?: MonsterRef;
+    actor?: ActorRef;
 }
 
 interface RemoveEvent {

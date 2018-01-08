@@ -93,6 +93,8 @@ function handleEvent(event: Event, inState: State) {
 function handleCommandFromPlayer(state: State, inputCmd: string) {
     const { currentArea, lastArea, areas } = state;
 
+    console.log(inputCmd);
+    // debugger;
     const command = Command.getCommand(state, currentArea, inputCmd);
     if (command) {
         state = Command.registerCommandUsed(command, currentArea, state);

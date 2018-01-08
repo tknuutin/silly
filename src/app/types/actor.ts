@@ -1,6 +1,7 @@
 
 import { VariableRef, Description, ContentId } from './common';
 // import { GNumber, MathOp } from './math';
+import { Event } from './event';
 import { DamageEvent } from './damage';
 
 
@@ -19,6 +20,10 @@ export interface Actor {
     // If it's friendly to start with, it will get angry on attack.
     startsFriendly?: boolean;
 
+    canTurnFriendly?: boolean;
+
+    health: number;
+
     attack?: {
         dmgEvent: DamageEvent;
         cooldown?: number;
@@ -28,5 +33,12 @@ export interface Actor {
         desc: Description;
         chance: number;
     }>;
+
+    commands?: {
+        targeted: Array<{
+            trigger: string,
+            event: Event,
+        }>
+    }
 }
 

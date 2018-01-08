@@ -9,6 +9,8 @@ const convertActorRefs = R.map((ref: ActorRef) =>
     convertActor(World.get(ref.ref)));
 
 export const convertArea = (a: Area): InternalArea => {
+    // debugger;
+    const actors = a.actors ? convertActorRefs(a.actors) : a.actors;
     return {
         refs: a.refs,
         id: a.id,
@@ -18,7 +20,7 @@ export const convertArea = (a: Area): InternalArea => {
         firstDesc: a.firstDesc,
         commands: a.commands,
         items: a.items,
-        actors: a.actors ? convertActorRefs(a.actors) : a.actors
+        actors
     };
 };
 
