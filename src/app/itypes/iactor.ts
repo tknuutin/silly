@@ -1,5 +1,5 @@
 
-import { Actor } from '../../types/actor';
+import { Actor } from '../types/actor';
 
 
 export interface InternalActor extends Actor {

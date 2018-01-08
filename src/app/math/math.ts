@@ -1,6 +1,6 @@
 
-import * as Vars from './vars';
-import { isObject, findObjOperation } from './utils';
+import * as Vars from '../game/vars';
+import { isObject, findObjOperation } from '../util/utils';
 import * as R from 'ramda';
 
 const OPS = {

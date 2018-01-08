@@ -1,12 +1,12 @@
 
 import * as R from 'ramda';
 import { applyTemplate } from './template';
-import * as World from './world';
-import { isArray, isString, isObject, upper } from './utils';
+import * as World from '../game/world';
+import { isArray, isString, isObject, upper } from '../util/utils';
 
 import { Description } from '../types/common';
 import { Item } from '../types/item';
-import { State } from './state';
+import { State } from '../data/state';
 
 const getName = ({ ref }: { ref: string }) => R.toUpper(World.get<{ name: string }>(ref).name);
 const getNames = R.map(getName);

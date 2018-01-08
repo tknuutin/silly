@@ -1,17 +1,17 @@
 
 import * as R from 'ramda';
-import * as Logic from './logic';
-import * as Desc from './desc';
-import { findByName, isObject } from './utils';
+import * as Logic from '../math/logic';
+import * as Desc from '../text/desc';
+import { findByName, isObject } from '../util/utils';
 import * as World from './world';
-import * as Text from './text';
+import * as Text from '../text/text';
 
 import { Description } from '../types/common';
 import { Command } from '../types/command';
-import { State, PlayerItemRef } from './state';
+import { State, PlayerItemRef } from '../data/state';
 import { Area } from '../types/area';
 import { Item } from '../types/item';
-import { InternalArea } from './itypes/iarea';
+import { InternalArea } from '../itypes/iarea';
 
 export interface InternalCommand extends Command {
     _global?: boolean;

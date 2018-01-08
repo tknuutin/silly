@@ -1,8 +1,8 @@
 
 
-import { Description, VariableRef, ContentId } from '../../types/common';
-import { ItemRef, ActorRef } from '../../types/area';
-import { Command } from '../../types/command';
+import { Description, VariableRef, ContentId } from '../types/common';
+import { ItemRef, ActorRef } from '../types/area';
+import { Command } from '../types/command';
 import { InternalActor } from './iactor';
 
 

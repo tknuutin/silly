@@ -1,9 +1,9 @@
 
 import { InternalArea } from '../itypes/iarea';
-import { Area, ActorRef } from '../../types/area';
+import { Area, ActorRef } from '../types/area';
 import { convertActor } from './actor';
 import * as R from 'ramda';
-import * as World from '../world';
+import * as World from '../game/world';
 
 const convertActorRefs = R.map((ref: ActorRef) =>
     convertActor(World.get(ref.ref)));

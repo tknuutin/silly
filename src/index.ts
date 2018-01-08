@@ -6,7 +6,7 @@ import * as Rx from 'rxjs';
 import { createView, View } from './app/views/view';
 import { get, getStartState } from './app/game/world';
 import { nextState } from './app/game/game';
-import { State } from './app/game/state';
+import { State } from './app/data/state';
 
 import { Command } from './app/types/command';
 

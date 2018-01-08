@@ -1,7 +1,7 @@
 
 import * as R from 'ramda';
-import * as Vars from './vars';
-import { isString, isArray, isObject } from './utils';
+import * as Vars from '../game/vars';
+import { isString, isArray, isObject } from '../util/utils';
 
 import * as L from '../types/logic';
 // import { isLogicAtom, isCombinator } from './typecheck';

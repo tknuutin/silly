@@ -1,6 +1,6 @@
 
-import { randomChoice } from './utils';
-import { State } from './state';
+import { randomChoice } from '../util/utils';
+import { State } from '../data/state';
 
 const NAME_INSULTS = [
     "Really? I guess that's what we're working with.",

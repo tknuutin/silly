@@ -1,12 +1,12 @@
 
 import { getByIds } from '../api/network';
 import * as R from 'ramda';
-import { isString } from './utils'; 
+import { isString } from '../util/utils'; 
 
 import { Area } from '../types/area';
-import { State } from './state';
-import { InternalArea } from './itypes/iarea';
-import { convertArea } from './converters/area';
+import { State } from '../data/state';
+import { InternalArea } from '../itypes/iarea';
+import { convertArea } from '../converters/area';
 
 let cache = {};
 

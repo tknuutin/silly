@@ -1,7 +1,7 @@
 
-import { isObject } from './utils';
+import { isObject } from '../util/utils';
 import * as R from 'ramda';
-import { State } from './state';
+import { State } from '../data/state';
 
 export function parse(varId: string): string[] {
     return varId.split(':');

@@ -1,8 +1,8 @@
 
 import * as R from 'ramda';
-import { ensureArray } from './utils';
+import { ensureArray } from '../util/utils';
 
-import { State } from './state';
+import { State } from '../data/state';
 
 function getValueFromState(pathStr: string, state: State, rules: Rules): string {
     const path = pathStr.split('.');

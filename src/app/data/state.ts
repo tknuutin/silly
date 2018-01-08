@@ -1,6 +1,6 @@
 
 import { Command } from '../types/command';
-import { InternalArea } from './itypes/iarea';
+import { InternalArea } from '../itypes/iarea';
 
 export interface PlayerItemRef {
     ref: string;

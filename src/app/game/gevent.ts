@@ -1,14 +1,14 @@
 
-import { applyTemplate } from './template';
-import { isArray, isObject, dropOne, findObjOperation } from './utils';
-import * as Math from './math';
+import { applyTemplate } from '../text/template';
+import { isArray, isObject, dropOne, findObjOperation } from '../util/utils';
+import * as Math from '../math/math';
 import * as World from './world';
 import * as R from 'ramda';
 import * as Vars from './vars';
-import * as Logic from './logic';
-import { InternalArea } from './itypes/iarea';
+import * as Logic from '../math/logic';
+import { InternalArea } from '../itypes/iarea';
 
-import { State, PlayerItemRef } from './state';
+import { State, PlayerItemRef } from '../data/state';
 import { Item } from '../types/item';
 import { Event } from '../types/event';
 import { ItemRef } from '../types/area';

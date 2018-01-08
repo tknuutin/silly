@@ -1,16 +1,16 @@
 
 
 import * as R from 'ramda';
-import { applyTemplate } from './template';
+import { applyTemplate } from '../text/template';
 import { get, fetchAreaData } from './world';
-import * as Text from './text';
-import * as Logic from './logic';
+import * as Text from '../text/text';
+import * as Logic from '../math/logic';
 import * as GEvent from './gevent';
 import * as Command from './command';
-import { InternalArea } from './itypes/iarea';
-import { areaDesc } from './desc';
-import { isString, isArray, trunc } from './utils';
-import { State } from './state';
+import { InternalArea } from '../itypes/iarea';
+import { areaDesc } from '../text/desc';
+import { isString, isArray, trunc } from '../util/utils';
+import { State } from '../data/state';
 import { Event } from '../types/event';
 import { Area } from '../types/area';
 import * as GTime from './gtime';

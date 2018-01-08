@@ -105,6 +105,9 @@ module.exports = {
         strictExportPresence: true,
         rules: [
             {
+                exclude: [
+                    /temp\/(.*)$/
+                ],
                 test: /\.(ts|tsx)$/,
                 loader: require.resolve('tslint-loader'),
                 enforce: 'pre',

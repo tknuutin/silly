@@ -1,13 +1,13 @@
 
-import { State } from './state';
+import { State } from '../data/state';
 import { Event } from '../types/event';
 import { DamageEvent } from '../types/damage';
 import { Description } from '../types/common';
-import { InternalActor } from './itypes/iactor';
+import { InternalActor } from '../itypes/iactor';
 import * as World from './world';
 import * as R from 'ramda';
-import * as Template from './template';
-import { isArray, isString } from './utils';
+import * as Template from '../text/template';
+import { isArray, isString } from '../util/utils';
 import * as GDamage from './damage';
 
 interface EventResult {
