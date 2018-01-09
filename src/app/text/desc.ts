@@ -17,14 +17,14 @@ type GameObject = ItemRef | InternalActor;
 const getName = (obj: GameObject) => {
     const name = (TC.isRef(obj)) ?
         World.get<{ name: string }>(obj.ref).name :
-        (TC.isIActor(obj) ? obj.name : undefined)
+        (TC.isIActor(obj) ? obj.name : undefined);
 
     if (name === undefined) {
         throw new Error('Unrecognized type in getName');
     }
-    return R.toUpper(name);
-    
-}
+    return R.toUpper(name);    
+};
+
 const getNames = R.map(getName);
 const padEmpty = R.prepend('');
 function padIfItems(arr: string[]): string[] {

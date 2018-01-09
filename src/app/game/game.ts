@@ -14,15 +14,7 @@ import { State } from '../data/state';
 import { Event } from '../types/event';
 import { Area } from '../types/area';
 import * as GTime from './gtime';
-
-// I dunno
-const l = {
-    areas: R.lensProp('areas'),
-    currentArea: R.lensProp('currentArea'),
-};
-const pr = {
-    cancel: R.prop('cancel')
-};
+import * as L from '../data/lenses';
 
 
 function print(state: State, text: string | string[]): State {
@@ -34,7 +26,11 @@ function print(state: State, text: string | string[]): State {
 function firstVisitOnArea(area: any, state: State) {
     const desc = areaDesc(state, area, area.firstDesc);
     print(state, desc);
-    return R.set(l.areas, R.set(R.lensProp(area.id), {}, state.areas), state);
+    return R.set(
+        L.compose(L.state.areas, R.lensProp(area.id)),
+        {},
+        state
+    );
 }
 
 function enterArea(areaId: string, state: State) {

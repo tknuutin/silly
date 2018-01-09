@@ -2,6 +2,8 @@
 import { isObject } from '../util/utils';
 import * as R from 'ramda';
 import { State } from '../data/state';
+import * as L from '../data/lenses';
+
 
 export function parse(varId: string): string[] {
     return varId.split(':');
@@ -15,13 +17,14 @@ export function name(varId: string): string {
     return parse(varId)[1];
 }
 
-const lVars = R.lensProp('vars');
-
 export function set(varId: string, value: number, state: State): State {
     const [namespace, name] = parse(varId);
     if (namespace === 'global') {
-        const vars = R.set(R.lensProp(name), value, state.vars);
-        state = R.set(lVars, vars, state);
+        return R.set(
+            L.compose(L.state.vars, R.lensProp(name)),
+            value,
+            state
+        );
     }
     return state;
 }

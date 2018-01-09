@@ -12,6 +12,8 @@ import { State, PlayerItemRef } from '../data/state';
 import { Area } from '../types/area';
 import { Item } from '../types/item';
 import { InternalArea } from '../itypes/iarea';
+import * as L from '../data/lenses';
+
 
 export interface InternalCommand extends Command {
     _global?: boolean;
@@ -203,8 +205,6 @@ export function getCommand(state: State, area: any, inputCmd: string): MaybeComm
     );
 }
 
-const lAreas = R.lensProp('areas');
-
 export function registerCommandUsed(command: InternalCommand, currentArea: InternalArea, state: State) {
     if (command._global) {
         return state;
@@ -227,7 +227,7 @@ export function registerCommandUsed(command: InternalCommand, currentArea: Inter
     const used = area.cmds[command.trigger].used || 0;
     area.cmds[command.trigger].used = used + 1;
 
-    const lCurrentArea = R.compose(lAreas, R.lensProp(currentArea.id)) as RamdaDefs.Lens;
+    const lCurrentArea = L.compose(L.state.areas, R.lensProp(currentArea.id));
 
     return R.set(lCurrentArea, area, state);
 }

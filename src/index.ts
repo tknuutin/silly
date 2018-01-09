@@ -79,9 +79,9 @@ function initSuggestions(view: View, state$: Rx.Observable<State>) {
 function initStateHandling(initialState: State, view: View): Rx.Observable<State> {
     const cmd$ = view.commands$;
 
-    const state$ = cmd$
-    // const state$ = Rx.Observable.of([null])
-    //     .merge(cmd$)
+    // const state$ = cmd$
+    const state$ = Rx.Observable.of('')
+        .merge(cmd$)
         .flatMap(updateState(initialState))
         .catch((e: any, c: any) => {
             console.error(e);
