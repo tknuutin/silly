@@ -1,4 +1,10 @@
 
+/*
+ This file for messing around with form generation for a CMS-type dealio.
+ Haven't looked at it too much lately.
+*/
+
+
 var ts = require("typescript");
 var fs = require("fs");
 var R = require('ramda');

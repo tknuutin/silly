@@ -1,4 +1,8 @@
 
+/*
+ The server stuff is for serving JSON content, used to also server the .html but Webpack does that now.
+*/
+
 var Express = require('express');
 var Http = require('http');
 var fs = require('fs');
