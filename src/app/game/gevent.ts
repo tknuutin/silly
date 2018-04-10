@@ -9,9 +9,8 @@ import * as Logic from '../math/logic';
 import { InternalArea } from '../itypes/iarea';
 
 import { State, PlayerItemRef } from '../data/state';
-import { Item } from '../types/item';
+import { Item, ItemRef } from '../types/item';
 import { Event } from '../types/event';
-import { ItemRef } from '../types/area';
 import { LogicAtom, Combinator } from '../types/logic';
 
 type Condition = LogicAtom | Combinator;

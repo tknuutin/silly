@@ -1,7 +1,7 @@
 
-import { InternalActor } from '../itypes/iactor';
+import { ActorRef } from '../itypes/iactor';
 
-export function isIActor(a: any): a is InternalActor {
+export function isActor(a: any): a is ActorRef {
     return (typeof a === 'object') && a._type === 'actor';
 }
 

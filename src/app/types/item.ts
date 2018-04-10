@@ -28,3 +28,15 @@ export interface Item {
     
     commands?: Array<Command>;
 }
+
+// No item data yet yet
+// export interface RawItemData {
+//     lastAttack?: number;
+//     lastGrunt?: number;
+//     isAngry?: boolean;
+// }
+
+export interface ItemRef {
+    ref: ContentId;
+    data?: Object
+}

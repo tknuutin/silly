@@ -12,4 +12,10 @@ export const state = {
     vars: R.lensProp('vars') as Lens
 };
 
+const lData = R.lensProp('data');
+
+export const actorRef = {
+	lastAttack: compose(lData, R.lensProp('lastAttack'))
+};
+
 

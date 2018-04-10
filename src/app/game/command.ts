@@ -12,6 +12,7 @@ import { State, PlayerItemRef } from '../data/state';
 import { Area } from '../types/area';
 import { Item } from '../types/item';
 import { InternalArea } from '../itypes/iarea';
+import { Actor } from '../types/actor';
 import * as L from '../data/lenses';
 
 
@@ -85,7 +86,7 @@ function examine(state: State, match: any, inputCmd: string): Description {
         return Desc.itemDesc(state, itemMatch, itemMatch.desc, false);
     }
 
-    const actorMatch = findByName(target, area.actors || []);
+    const actorMatch = findByName(target, getRefs<Actor>(area.actors || []));
     if (actorMatch) {
         return Desc.monsterDesc(state, actorMatch, actorMatch.desc);
     }

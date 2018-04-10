@@ -1,9 +1,10 @@
 
 
 import { Description, VariableRef, ContentId } from '../types/common';
-import { ItemRef, ActorRef } from '../types/area';
+import { ItemRef } from '../types/item';
+import { ActorRef } from '../itypes/iactor';
 import { Command } from '../types/command';
-import { InternalActor } from './iactor';
+import { ActorData } from './iactor';
 
 
 export interface InternalArea {
@@ -15,7 +16,7 @@ export interface InternalArea {
     firstDesc?: Description;
     commands: Array<Command>;
     items?: Array<ItemRef>;
-    actors?: Array<InternalActor>;
+    actors?: Array<ActorRef>;
 }
 
 

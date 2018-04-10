@@ -4,29 +4,32 @@ import * as Vars from '../game/vars';
 import { isString, isArray, isObject } from '../util/utils';
 
 import * as L from '../types/logic';
+import { VariableRef } from '../types/common';
+import { State } from '../data/state';
 // import { isLogicAtom, isCombinator } from './typecheck';
 
 type Condition = L.LogicAtom | L.Combinator;
+type Expr = [VariableRef, VariableRef | number];
 
-function compare(state: any, expr: any, comparison: any) {
+function compare(state: State, expr: Expr, comparison: any): boolean {
     const [var1, par] = expr;
-    const gameVar = Vars.getValue(state, expr[0]);
-    const compareTo = isString(par) ? Vars.getValue(state, expr[1]) : par;
+    const gameVar = Vars.getValue(state, var1);
+    const compareTo = isString(par) ? Vars.getValue(state, par) : par;
     return comparison(gameVar, compareTo);
 }
 
 const COMP = {
-    exists: (state: any, expr: any): boolean =>
-        Vars.getValue(state, expr) !== undefined,
-    eq: (state: any, expr: any) =>
+    exists: (state: State, ref: VariableRef): boolean =>
+        Vars.getValue(state, ref) !== undefined,
+    eq: (state: State, expr: Expr) =>
         compare(state, expr, (x: number, y: number) => x === y),
-    lt: (state: any, expr: any) =>
+    lt: (state: State, expr: Expr) =>
         compare(state, expr, (x: number, y: number) => x < y),
-    lte: (state: any, expr: any) =>
+    lte: (state: State, expr: Expr) =>
         compare(state, expr, (x: number, y: number) => x <= y),
-    gt: (state: any, expr: any) =>
+    gt: (state: State, expr: Expr) =>
         compare(state, expr, (x: number, y: number) => x > y),
-    gte: (state: any, expr: any) =>
+    gte: (state: State, expr: Expr) =>
         compare(state, expr, (x: number, y: number) => x >= y)
 };
 
@@ -42,7 +45,8 @@ function isLogicAtom(a: any): a is L.LogicAtom {
     return R.any((val) => val !== undefined, R.map((key) => a[key], LOGIC_ATOM_KEYS));
 }
 
-export function isTrue(state: any, expr: Condition | undefined): boolean {
+type ComparisonFunc = (state: State, expr: any) => boolean;
+export function isTrue(state: State, expr: Condition | undefined): boolean {
     // The expression being undefined itself means it is true.
     if (!expr) {
         return true;
@@ -86,8 +90,8 @@ export function isTrue(state: any, expr: Condition | undefined): boolean {
 
     // --------------------------------
     // Actual game world checks
-    const notExistsOrIsTrue = (pair: any) => {
-        const [key, func] = pair;
+    const notExistsOrIsTrue = ([key, func]: [string, ComparisonFunc]) => {
+        // const [key, func] = pair;
         if (expr[key]) {
             return func(state, expr[key]);
         }

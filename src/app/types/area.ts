@@ -1,15 +1,8 @@
 
 import { Description, VariableRef, ContentId } from './common';
 import { Command } from './command';
-
-
-export interface ActorRef {
-    ref: ContentId;
-}
-
-export interface ItemRef {
-    ref: ContentId;
-}
+import { ItemRef } from './item';
+import { RawActorRef, RawActorData } from './actor';
 
 export interface Area {
     // References to other content that this area might deal with. Must be
@@ -39,6 +32,6 @@ export interface Area {
     items?: Array<ItemRef>;
 
     // NPCs present in the area.
-    actors?: Array<ActorRef>;
+    actors?: Array<RawActorRef<RawActorData>>;
 }
 

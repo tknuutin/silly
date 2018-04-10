@@ -39,6 +39,17 @@ export interface Actor {
             trigger: string,
             event: Event,
         }>
-    }
+    };
+}
+
+export interface RawActorData {
+    lastAttack?: number;
+    lastGrunt?: number;
+    isAngry?: boolean;
+}
+
+export interface RawActorRef<T extends RawActorData> {
+    ref: ContentId;
+    data?: T
 }
 

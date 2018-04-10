@@ -1,12 +1,12 @@
 
-import { Actor } from '../types/actor';
+import { RawActorData, Actor, RawActorRef } from '../types/actor';
 
 
-export interface InternalActor extends Actor {
-	_type: 'actor',
+export interface ActorData extends RawActorData {
+
+}
+
+export interface ActorRef extends RawActorRef<ActorData> {
+    _type: 'actor';
     aid: string;
-    lastAttack?: number;
-    lastGrunt?: number;
-    isAngry?: boolean;
-    isFriendly?: boolean;
 }

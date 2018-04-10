@@ -1,13 +1,14 @@
 
-import { InternalActor } from '../itypes/iactor';
-import { Actor } from '../types/actor';
+import { ActorRef, ActorData } from '../itypes/iactor';
+import { RawActorRef, RawActorData } from '../types/actor';
 import { getGameID } from '../util/gid';
 
-export const convertActor = (a: Actor): InternalActor => {
+export const convertActor = (a: RawActorRef<RawActorData>): ActorRef => {
     return {
-        ...a,
+        ref: a.ref,
         _type: 'actor',
-        aid: getGameID()
+        aid: getGameID(),
+        data: a.data
     };
 };
 

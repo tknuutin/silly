@@ -5,19 +5,20 @@ import * as World from '../game/world';
 import * as TC from '../game/typecheck';
 import { isArray, isString, isObject, upper } from '../util/utils';
 import { InternalArea } from '../itypes/iarea';
-import { InternalActor } from '../itypes/iactor';
+import { ActorRef } from '../itypes/iactor';
 import { Description, DescriptionObject } from '../types/common';
-import { ItemRef } from '../types/area';
-import { Item } from '../types/item';
+import { Item, ItemRef } from '../types/item';
 import { State } from '../data/state';
+import { isAngry } from '../util/gameutil';
 
 
-type GameObject = ItemRef | InternalActor;
+type GameObject = ItemRef | ActorRef;
 
 const getName = (obj: GameObject) => {
-    const name = (TC.isRef(obj)) ?
-        World.get<{ name: string }>(obj.ref).name :
-        (TC.isIActor(obj) ? obj.name : undefined);
+    if (!TC.isRef(obj)) {
+        throw new Error('what');
+    }
+    const name = World.get<{ name: string }>(obj.ref).name;
 
     if (name === undefined) {
         throw new Error('Unrecognized type in getName');
@@ -57,7 +58,15 @@ function getTextForGameObjects(items: GameObject[]) {
 
 function getAreaEntitiesDescription(area: InternalArea, toFilter: string[] = []): string[] {
     const itemLines = getLines(toFilter, area.items || []);
-    const monsterLines = getLines(toFilter, area.actors || []);
+    const actors = area.actors || [];
+    const monsterLines = R.concat(
+        getLines(toFilter, actors),
+        R.map((aref: ActorRef) => {
+            const name = getName(aref);
+            return `${name} is enraged by your presence!`;
+        }, R.filter(isAngry, actors))
+    );
+    console.log(monsterLines, actors);
     return itemLines.concat(monsterLines);
 }
 
@@ -72,7 +81,7 @@ function itemComplexDescription(state: State, item: any, def: DescriptionObject,
     throw new Error('Not implemented: Item had a complex description!');
 }
 
-function monsterComplexDescription(state: State, actor: InternalActor, def: DescriptionObject): Description {
+function monsterComplexDescription(state: State, actor: ActorRef, def: DescriptionObject): Description {
     throw new Error('Not implemented: Actor had a complex description!');
 }
 
