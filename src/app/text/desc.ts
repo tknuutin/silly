@@ -66,7 +66,6 @@ function getAreaEntitiesDescription(area: InternalArea, toFilter: string[] = [])
             return `${name} is enraged by your presence!`;
         }, R.filter(isAngry, actors))
     );
-    console.log(monsterLines, actors);
     return itemLines.concat(monsterLines);
 }
 

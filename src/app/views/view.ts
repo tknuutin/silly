@@ -155,6 +155,18 @@ function createFakeInput() {
     };
 }
 
+function getStoredCommands(): string[] {
+    const str = window.localStorage.getItem('storedCmds');
+    if (!str) {
+        return [];
+    }
+
+    const parsed = JSON.parse(str) as { cmds: string[] };
+    console.log(parsed);
+    return parsed.cmds;
+}
+
+
 export function createView(): View {
     const commandInput = $('#command');
 
@@ -172,7 +184,23 @@ export function createView(): View {
 
     const print = (text: string) => addTextParagraph(text, screen[0]);
 
-    validCommands$.do((cmd: string) => print('> ' + cmd)).subscribe();
+    const storedCommands = Rx.Observable.from(getStoredCommands())
+        .delay(1000)
+        .concatMap((val) => {
+            return Rx.Observable.of(val)
+                .delay(500);
+        });
+        // .concatAll();
+
+    (window as any).storeCmds = (cmds: string[]): void => {
+        const str = JSON.stringify({ cmds });
+        window.localStorage.setItem('storedCmds', str);
+    };
+
+    const validCommandEvents$ = validCommands$
+        .merge(storedCommands);
+
+    validCommandEvents$.do((cmd: string) => print('> ' + cmd)).subscribe();
 
     const onCommand = () => {
         screen.scrollTop(screen[0].scrollHeight);
@@ -188,6 +216,6 @@ export function createView(): View {
         showError,
         invalidInput$: input$,
         validInput$: validInput$,
-        commands$: validCommands$.delay(100),
+        commands$: validCommandEvents$.delay(100),
     };
 }

@@ -76,6 +76,7 @@ function initSuggestions(view: View, state$: Rx.Observable<State>) {
     matchingSuggestions$.subscribe();
 }
 
+
 function initStateHandling(initialState: State, view: View): Rx.Observable<State> {
     const cmd$ = view.commands$;
 
