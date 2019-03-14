@@ -77,7 +77,7 @@ function handleEvent(event: Event, inState: State) {
         return { state: stateAppliedEvents, move: event.move };
     }
     
-    const stateExecEvents = GEvent.execEvent(event, state);
+    const stateExecEvents = GEvent.execEvent(event, stateAppliedEvents);
 
     // Apply stuff that happens because of time moving but should
     // be resolved after the player-caused-events happen.
@@ -86,27 +86,33 @@ function handleEvent(event: Event, inState: State) {
     return { state: stateAppliedEventsAgain, move: null };
 }
 
-function handleCommandFromPlayer(state: State, inputCmd: string) {
+function handleCommandFromPlayer(state: State, inputCmd: string): Promise<State | string> {
     const { currentArea, lastArea, areas } = state;
 
     console.log(inputCmd);
-    // debugger;
-    const command = Command.getCommand(state, currentArea, inputCmd);
-    if (command) {
-        state = Command.registerCommandUsed(command, currentArea, state);
-        const event = GEvent.getEvent(command.events, state);
-        if (event) {
-            const eventResult = handleEvent(event, state);
-            state = eventResult.state;
-            if (eventResult.move) {
-                return enterArea(eventResult.move, state);
+
+    try {
+        const command = Command.getCommand(state, currentArea, inputCmd);
+        if (command) {
+            state = Command.registerCommandUsed(command, currentArea, state);
+            const event = GEvent.getEvent(command.events, state);
+            if (event) {
+                const eventResult = handleEvent(event, state);
+                state = eventResult.state;
+                if (eventResult.move) {
+                    return enterArea(eventResult.move, state);
+                }
+            } else {
+                throw new Error('No event found for command!');
             }
         } else {
-            throw new Error('No event found for command!');
+            state = print(state, Text.unknownCommand());
         }
-    } else {
-        state = print(state, Text.unknownCommand());
+    } catch (e) {
+        console.error(e);
+        return Promise.resolve(e.message || 'Unknown error');
     }
+    
 
     return Promise.resolve(state);
 }
@@ -129,14 +135,15 @@ function makeState(old: State, inputCmd: string): State {
     };
 }
 
-function getSuggestions(state: any) {
+function getSuggestions(state: State) {
     const builtins = R.map((trigger) => ({ trigger }), ['examine', 'look at']);
     const areaCmds = R.filter(
         (command) => Command.isCommandVisible(state, command),
         Command.getAvailableAreaCommands(state, state.currentArea)
     );
 
-    state.suggestions = {
+    // TODO: do anything but this
+    (state as any).suggestions = {
         builtins, areaCmds
     };
     return state;
@@ -160,5 +167,11 @@ export function nextState(oldState: State, inputCmd: string = ''): Promise<State
     }
 
     return handleCommandFromPlayer(state, inputCmd)
+        .then((val) => {
+            if (typeof val === 'string') {
+                return R.assoc('output', ['Something odd occured.'], state);
+            }
+            return val;
+        })
         .then(getSuggestions);
 }

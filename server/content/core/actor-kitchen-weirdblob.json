@@ -5,12 +5,14 @@
     "desc": "It is a weird slimy blob.",
     "alwaysFriendly": false,
     "attack": {
-        "dmgEvent": 10,
+        "dmgEvent": {
+            "damage": 10
+        },
         "cooldown": 7
     },
     "health": 15,
     "grunt": [
-        { "desc": "The weird blob says: BLEEERGH!", "chance": 25 }
+        { "desc": "The WEIRD BLOB says: BLEEERGH!", "chance": 35 }
     ],
     "commands": {
         "targeted": [
@@ -18,11 +20,10 @@
                 "trigger": "kiss",
                 "event": {
                     "desc": [
-                        "You kiss the weird blob. The blob shuffles around confusedly!",
-                        "The weird blob says: Oh you charmer.",
+                        "You kiss the WEIRD BLOB. The blob shuffles around confusedly!",
                         "The WEIRD BLOB is now friendly!"
                     ],
-                    "set": ["currentarea:actor:actor-weirdblob:isFriendly", 1]   
+                    "set": ["currentarea:actor:kitchen-weirdblob:isFriendly", 1]   
                 }
             }
         ]

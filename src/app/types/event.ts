@@ -1,6 +1,7 @@
 
 import { Description, VariableRef, ContentId, TargetRef } from './common';
 import { GNumber, MathOp } from './math';
+import { RawActorRef, RawActorData } from './actor';
 
 type EventMathOperation = [VariableRef, GNumber | MathOp];
 interface MathOperationOwner {
@@ -20,17 +21,14 @@ interface MathOperationOwner {
     mul?: [VariableRef, GNumber | MathOp];
 }
 
+// This should maybe be RawItemRef imported from ./item?
 interface ItemRef {
-    ref: ContentId;
-}
-
-interface ActorRef {
     ref: ContentId;
 }
 
 interface SpawnEvent {
     item?: ItemRef;
-    actor?: ActorRef;
+    actor?: RawActorRef<RawActorData>;
 }
 
 interface RemoveEvent {

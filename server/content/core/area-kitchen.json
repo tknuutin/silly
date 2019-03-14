@@ -10,10 +10,17 @@
     "commands": [
         {
             "trigger": "go to bedroom",
-            "events": [{
+            "events": {
                 "desc": "",
                 "move": "core:area:bedroom"
-            }]
+            }
+        },
+        {
+            "trigger": "ponder life",
+            "events": {
+                "desc": "You sit and think upon life for a while.",
+                "time": 6
+            }
         }
     ],
     "actors": [

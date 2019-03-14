@@ -127,3 +127,11 @@ export function monsterDesc(state: State, actor: any, def: any) {
     );
 }
 
+export function simpleDesc(state: State, desc: Description): string[] {
+    if (isObject(desc) && !isArray(desc)) {
+        return simpleDesc(state, desc.text);
+    }
+    const lines = isArray(desc) ? desc : [desc];
+    return applyTemplate(lines, state);
+}
+

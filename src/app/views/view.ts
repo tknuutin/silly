@@ -168,6 +168,7 @@ function getStoredCommands(): string[] {
 
 
 export function createView(): View {
+    console.log('----- create view ----')
     const commandInput = $('#command');
 
     const { setValue, fakeInput$ } = createFakeInput();
@@ -184,12 +185,19 @@ export function createView(): View {
 
     const print = (text: string) => addTextParagraph(text, screen[0]);
 
-    const storedCommands = Rx.Observable.from(getStoredCommands())
+    const storedCommands = getStoredCommands();
+
+    const storedCommands$ = Rx.Observable.from(storedCommands)
+        .do((val) => {
+            console.log('hello?', val);
+        })
         .delay(1000)
         .concatMap((val) => {
             return Rx.Observable.of(val)
                 .delay(500);
-        });
+        })
+        .share()
+        .take(storedCommands.length);
         // .concatAll();
 
     (window as any).storeCmds = (cmds: string[]): void => {
@@ -198,7 +206,7 @@ export function createView(): View {
     };
 
     const validCommandEvents$ = validCommands$
-        .merge(storedCommands);
+        .merge(storedCommands$);
 
     validCommandEvents$.do((cmd: string) => print('> ' + cmd)).subscribe();
 

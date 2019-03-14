@@ -85,7 +85,7 @@ function initStateHandling(initialState: State, view: View): Rx.Observable<State
         .merge(cmd$)
         .flatMap(updateState(initialState))
         .catch((e: any, c: any) => {
-            console.error(e);
+            console.error(e, c);
             view.showError();
             return c;
         })

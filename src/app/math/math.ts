@@ -1,6 +1,7 @@
 
 import * as Vars from '../game/vars';
 import { isObject, findObjOperation } from '../util/utils';
+import { State } from '../data/state';
 import * as R from 'ramda';
 
 const OPS = {
@@ -10,7 +11,7 @@ const OPS = {
     mul: (x: number, y: number): number => x * y
 };
 
-export function resolveValue(state: any, expr: any): number {
+export function resolveValue(state: State, expr: any): number {
     if (typeof expr === 'number') {
         return expr;
     }

@@ -10,6 +10,9 @@ import { InternalArea } from '../itypes/iarea';
 
 import { State, PlayerItemRef } from '../data/state';
 import { Item, ItemRef } from '../types/item';
+import { RawActorRef, RawActorData } from '../types/actor';
+import * as ActorConvert from '../converters/actor';
+import { Description } from '../types/common';
 import { Event } from '../types/event';
 import { LogicAtom, Combinator } from '../types/logic';
 
@@ -81,6 +84,7 @@ const OPS = {
 };
 
 function resolveEventMath(state: State, mathDef: any) {
+    
     const { opname, func } = findObjOperation(OPS, mathDef);
     if (!func || !opname) {
         return state;
@@ -92,10 +96,22 @@ function resolveEventMath(state: State, mathDef: any) {
     return func(varId, value, state);
 }
 
-export function execEvent(event: any, state: State): State {
+function eventDescToLines(desc: Description): string[] {
+    if (isArray(desc)) {
+        return desc;
+    }
+
+    if (isObject(desc)) {
+        return desc.text;
+    }
+
+    return [desc];
+}
+
+export function execEvent(event: Event, state: State): State {
     // debugger;
     if (event.desc) {
-        state.output = state.output.concat(applyTemplate(event.desc, state));
+        state.output = state.output.concat(applyTemplate(eventDescToLines(event.desc), state));
     }
 
     state = resolveEventMath(state, event);
@@ -107,27 +123,34 @@ export function execEvent(event: any, state: State): State {
     }
 
     if (event.remove) {
-        state = resolveRemove(state, event.remove);
+        state = resolveRemove(event.remove, state);
     }
 
     if (event.give) {
-        const { item } = event.give;
-        if (item) {
-            const itemDef = World.get<PlayerItemRef>(item.ref);
-            state.player.items = state.player.items.concat([itemDef]);
-        }
+        const give = isArray(event.give) ? event.give : [event.give];
+        state.player.items = state.player.items.concat(R.map((giveRef) => {
+            const itemDef = World.get<PlayerItemRef>(giveRef.ref);
+            return itemDef;
+        }, give));
     }
 
     if (event.spawn) {
         const area = state.currentArea;
-        const { spawn } = event.spawn;
-        if (spawn) {
-            const { item, monster } = spawn;
-            if (item) {
-                const itemDef = World.get(item.ref);
-                
-            }
-        }
+        const spawns = isArray(event.spawn) ? event.spawn : [event.spawn];
+        
+        const itemSpawns = R.filter((x) => !!x, R.map((val) => {
+            return val.item;
+        }, spawns)) as ItemRef[];
+        const actorSpawns = R.filter((x) => !!x, R.map((val) => {
+            return val.actor;
+        }, spawns)) as RawActorRef<RawActorData>[];
+
+        const areaActors = state.currentArea.actors || [];
+        state.currentArea.actors = areaActors.concat(R.map(ActorConvert.convertActor, actorSpawns));
+
+        const areaItems = state.currentArea.items || [];
+        state.currentArea.items = areaItems.concat(R.map(ActorConvert.convertActor, actorSpawns));
+       
     }
 
     return state;

@@ -9,13 +9,14 @@ export const compose = R.compose as LensComposer;
 export const state = {
     areas: R.lensProp('areas') as Lens,
     currentArea: R.lensProp('currentArea') as Lens,
-    vars: R.lensProp('vars') as Lens
+    vars: R.lensProp('vars') as Lens,
+    playerHealth: compose(R.lensProp('player'), R.lensProp('health'))
 };
 
 const lData = R.lensProp('data');
 
 export const actorRef = {
-	lastAttack: compose(lData, R.lensProp('lastAttack'))
+    lastAttack: compose(lData, R.lensProp('lastAttack'))
 };
 
 

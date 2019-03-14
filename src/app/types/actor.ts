@@ -4,6 +4,10 @@ import { VariableRef, Description, ContentId } from './common';
 import { Event } from './event';
 import { DamageEvent } from './damage';
 
+export interface Grunt {
+    desc: Description;
+    chance: number;
+}
 
 export interface Actor {
     id: ContentId;
@@ -29,10 +33,7 @@ export interface Actor {
         cooldown?: number;
     };
 
-    grunt?: Array<{
-        desc: Description;
-        chance: number;
-    }>;
+    grunt?: Array<Grunt>;
 
     commands?: {
         targeted: Array<{
