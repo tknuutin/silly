@@ -12,9 +12,12 @@ type StructureProp<TRoot, P> = {
 type StructureObjProp<TRoot, P> = StructureObjNode<TRoot, P> & StructureProp<TRoot, P>;
 
 type StructureObjNode<TRoot, TNode> = {
-    [P in keyof TNode]: TNode[P] extends Object
-        ? StructureObjProp<TRoot, TNode[P]>
-        : StructureProp<TRoot, TNode[P]>;
+    // Treat Arrays like they are non-object values, otherwise we get weirdness
+    [P in keyof TNode]: TNode[P] extends Array<any>
+        ? StructureProp<TRoot, TNode[P]>
+        : TNode[P] extends Object
+            ? StructureObjProp<TRoot, TNode[P]>
+            : StructureProp<TRoot, TNode[P]>;
 };
 type Structure<T> = StructureObjNode<T, T>;
 
@@ -34,7 +37,7 @@ function makeStructureNode<TRoot, TNode>(node: TNode, lensChain?: Lens): Structu
         return R.set(lensChain, val, rootObj) as TRoot;
     })} as StructureProp<TRoot, TNode>;
 
-    if (typeof node !== 'object') {
+    if (typeof node !== 'object' || node instanceof Array) {
         return nodeFunc;
     }
     
@@ -61,14 +64,21 @@ export function lensify<T extends Object>(node: T): Structure<T> {
 //         more: {
 //             yeah: number;
 //         }
-//     }
+//     };
+//     arr: string[];
 // }
 
 // const defaultState: State = {
-//     prop: 3, obj: { foo: 'hello!', more: { yeah: 4 } }
+//     prop: 3,
+//     obj: { foo: 'hello!', more: { yeah: 4 } },
+//     arr: ['argh!']
 // }
 
 // const stateL = lensify(defaultState)
+
+// const x = stateL.obj.foo.l(defaultState)
+// const a = stateL.arr.l(defaultState, [])
+
 
 // stateL.obj.more.yeah.l(defaultState) // Equivalent to R.view. Typesafe!
 // stateL.obj.more.yeah.l(defaultState, 6) // Equivalent to R.set. Typesafe!
