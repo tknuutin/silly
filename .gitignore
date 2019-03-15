@@ -3,3 +3,4 @@ node_modules/
 temp/
 src/app/types/*.js
 npm-debug.log
+.vscode

@@ -21,17 +21,14 @@
     "extends": "react-app"
   },
   "dependencies": {
-    "@types/classnames": "2.2.0",
-    "@types/node": "8.0.14",
-    "bacon.jquery": "^0.4.12",
-    "bacon.model": "^0.1.12",
-    "baconjs": "^0.7.95",
     "jquery": "^3.2.1",
     "ramda": "^0.24.1",
     "rxjs": "^5.5.2"
   },
   "devDependencies": {
-    "@types/jquery": "^3.2.15",
+    "@types/classnames": "2.2.0",
+    "@types/node": "8.0.14",
+    "@types/jquery": "^3.3.29",
     "app-root-path": "2.0.1",
     "argparse": "1.0.9",
     "autoprefixer": "7.1.2",
@@ -68,7 +65,7 @@
     "tslint-loader": "3.5.3",
     "tslint-react": "3.0.0",
     "tsutils": "2.7.1",
-    "typescript": "2.4.1",
+    "typescript": "^3.3.3333",
     "url-loader": "0.5.9",
     "utf-8-validate": "3.0.3",
     "webpack": "3.3.0",

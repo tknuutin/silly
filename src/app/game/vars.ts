@@ -3,6 +3,7 @@ import { isObject } from '../util/utils';
 import * as R from 'ramda';
 import { State } from '../data/state';
 import * as L from '../data/lenses';
+const lState = L.state
 
 
 export function parse(varId: string): string[] {
@@ -16,7 +17,7 @@ export function set(varId: string, value: number, state: State): State {
             throw new Error('Invalid global var: ' + varId);
         }
         return R.set(
-            L.compose(L.state.vars, R.lensProp(additional[0])),
+            L.compose(lState.vars.l(), R.lensProp(additional[0])),
             value,
             state
         );
@@ -25,7 +26,7 @@ export function set(varId: string, value: number, state: State): State {
         // debugger;
         const [name, ...more] = additional;
         if (name === 'health') {
-            return R.set(L.state.playerHealth, value, state);
+            return lState.player.health.l(state, value);
         }
         throw new Error('Unimplemented / unrecognized player var: ' + varId);
     }

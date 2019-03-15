@@ -15,6 +15,7 @@ import { Event } from '../types/event';
 import { Area } from '../types/area';
 import * as GTime from './gtime';
 import * as L from '../data/lenses';
+const lState = L.state
 
 
 function print(state: State, text: string | string[]): State {
@@ -27,7 +28,7 @@ function firstVisitOnArea(area: any, state: State) {
     const desc = areaDesc(state, area, area.firstDesc);
     print(state, desc);
     return R.set(
-        L.compose(L.state.areas, R.lensProp(area.id)),
+        L.compose(lState.areas.l(), R.lensProp(area.id)),
         {},
         state
     );

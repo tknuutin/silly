@@ -14,7 +14,7 @@ import { Item } from '../types/item';
 import { InternalArea } from '../itypes/iarea';
 import { Actor } from '../types/actor';
 import * as L from '../data/lenses';
-
+const lState = L.state
 
 export interface InternalCommand extends Command {
     _global?: boolean;
@@ -228,7 +228,7 @@ export function registerCommandUsed(command: InternalCommand, currentArea: Inter
     const used = area.cmds[command.trigger].used || 0;
     area.cmds[command.trigger].used = used + 1;
 
-    const lCurrentArea = L.compose(L.state.areas, R.lensProp(currentArea.id));
+    const lCurrentArea = L.compose(lState.areas.l(), R.lensProp(currentArea.id));
 
     return R.set(lCurrentArea, area, state);
 }

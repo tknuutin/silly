@@ -1,19 +1,14 @@
 
 import * as R from 'ramda';
+import { STARTSTATE } from './defaultState';
+import * as LU from './lensUtils';
+import { lensify } from './structure';
 
-type Lens = RamdaDefs.Lens;
-
-type LensComposer = (l1: Lens, l2?: Lens, l3?: Lens) => Lens;
-export const compose = R.compose as LensComposer;
-
-export const state = {
-    areas: R.lensProp('areas') as Lens,
-    currentArea: R.lensProp('currentArea') as Lens,
-    vars: R.lensProp('vars') as Lens,
-    playerHealth: compose(R.lensProp('player'), R.lensProp('health'))
-};
+export const state = lensify(STARTSTATE);
 
 const lData = R.lensProp('data');
+
+export const compose = LU.compose;
 
 export const actorRef = {
     lastAttack: compose(lData, R.lensProp('lastAttack'))
